@@ -36,7 +36,7 @@ class autostatusFunctionCollection
         $networkObjects = array();
         foreach( $identifierArray as $identifier )
         {
-            $object = autostatusSocialNetworks::fetchByIdentifier( $identifier );
+            $object = autostatusSocialNetwork::fetchByIdentifier( $identifier );
             if ( $object !== null )
             {
                 $networkObjects[] = $object;

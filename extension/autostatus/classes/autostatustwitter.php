@@ -33,11 +33,13 @@ class autostatusTwitter extends autostatusSocialNetwork
     }
 
 
-    public function update($message, $login, $password)
+    public function update( $message, $login, $password )
     {
-        // TODO
-        eZDebug::writeDebug( $message, __METHOD__ );
+        self::fixIncludePath();
+        $client = new Zend_Service_Twitter( $login, $password );
+        $response = $client->statusUpdate( $message );
     }
+
 
 }
 

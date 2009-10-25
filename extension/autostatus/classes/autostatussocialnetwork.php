@@ -26,6 +26,8 @@
 abstract class autostatusSocialNetwork
 {
 
+    static $includePathFixed = false;
+
     /**
      * identifier of the social network
      * 
@@ -75,6 +77,17 @@ abstract class autostatusSocialNetwork
             return null;
         }
         return new $className;
+    }
+
+    static public function fixIncludePath()
+    {
+        if ( !self::$includePathFixed )
+        {
+            $includePath = get_include_path();
+            $includePath .= PATH_SEPARATOR . eZExtension::baseDirectory() . '/autostatus/classes';
+            set_include_path( $includePath );
+            self::$includePathFixed = true;
+        }
     }
 
 }
