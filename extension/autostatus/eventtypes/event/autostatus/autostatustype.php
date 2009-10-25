@@ -85,7 +85,7 @@ class autostatusType extends eZWorkflowEventType
             }
             case 'social_network':
             {
-                return autostatusSocialNetworks::fetchByIdentifier( $event->attribute( 'data_text1' ) );
+                return autostatusSocialNetwork::fetchByIdentifier( $event->attribute( 'data_text1' ) );
             }
             case 'login':
             {
@@ -145,7 +145,7 @@ class autostatusType extends eZWorkflowEventType
                                                                                                       . '/' . $http->postVariable( $attributeIdentifierPostName ) ) );
         }
         if ( !$http->hasPostVariable( $socialNetworkPostName )
-                || !is_object( autostatusSocialNetworks::fetchByIdentifier( $http->postVariable( $socialNetworkPostName ) ) ) )
+                || !is_object( autostatusSocialNetwork::fetchByIdentifier( $http->postVariable( $socialNetworkPostName ) ) ) )
         {
             $finalState = eZInputValidator::STATE_INVALID;
             $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Invalid social network' ) );
