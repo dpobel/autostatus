@@ -80,7 +80,7 @@
         <p>
             <label class="radio" for="SocialNetwork_{$event.id}">{'Social network'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
             <select id="SocialNetwork_{$event.id}" name="SocialNetwork_{$event.id}">
-                <option value="">{'Choose a social network'|i18n( 'design/Admin/workflow/eventtype/edit' )}</option>
+                <option value="">{'Choose a social network'|i18n( 'design/admin/workflow/eventtype/edit' )}</option>
             {foreach $social_networks as $network}
                 <option value="{$network.identifier}"{if $event.social_network_identifier|eq( $network.identifier )} selected="selected"{/if}>{$network.name|wash()}</option>
             {/foreach}
