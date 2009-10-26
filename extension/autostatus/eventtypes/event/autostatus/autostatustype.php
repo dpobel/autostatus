@@ -227,8 +227,19 @@ class autostatusType extends eZWorkflowEventType
         {
             $login = $event->attribute( 'login' );
             $password = $event->attribute( 'password' );
-            $socialNetwork->update( $dataMap[$attributeIdentifier]->attribute( 'content' ),
-                                    $login, $password );
+            try
+            {
+                $socialNetwork->update( $dataMap[$attributeIdentifier]->attribute( 'content' ),
+                                        $login, $password );
+            }
+            catch( Exception $e )
+            {
+                /**
+                 * @todo add a way to retry
+                 */
+                eZDebug::writeError( 'An error occured when updating status in '
+                        . $socialNetwork->attribute( 'name' ) . ' : ' . $e->getMessage(), 'Auto status workflow' );
+            }
         }
         else
         {
