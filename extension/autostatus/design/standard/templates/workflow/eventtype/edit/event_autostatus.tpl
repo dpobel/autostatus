@@ -96,5 +96,13 @@
         </p>
 
     </fieldset>
+    <br />
+    <fieldset>
+        <legend>{'Defer status update to cronjob'|i18n( 'design/admin/workflow/eventtype/edit' )}</legend>
+        <p>
+            <label for="UseCronjob_{$event.id}" class="radio">{'Use cronjob to update status'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
+            <input type="checkbox" value="1" name="UseCronjob_{$event.id}" id="UseCronjob_{$event.id}"{if $event.use_cronjob} checked="checked"{/if} />
+        </p>
+    </fieldset>
 </div>
 {undef $classes $attributes $social_networks $allowed_datatypes}

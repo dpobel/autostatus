@@ -30,6 +30,7 @@
  * Informations are stored as followed :
  *  - data_int1 : content class id
  *  - data_int2 : attribute id
+ *  - date_int3 : use cronjob
  *  - data_text1 : identifier of the social network
  *  - data_text2 : login on the social network
  *  - data_text3 : password on the social network
@@ -53,6 +54,10 @@ class autostatusType extends eZWorkflowEventType
     {
         switch( $attr )
         {
+            case 'use_cronjob':
+            {
+                return $event->attribute( 'data_int3' ) != 0;
+            }
             case 'class_id':
             {
                 return $event->attribute( 'data_int1' );
@@ -102,7 +107,7 @@ class autostatusType extends eZWorkflowEventType
     function typeFunctionalAttributes()
     {
         return array( 'class_identifier', 'class_id', 'attribute_identifier', 'attribute_id',
-                      'class', 'attribute',
+                      'class', 'attribute', 'use_cronjob',
                       'social_network_identifier', 'social_network', 'login', 'password' );
     }
 
@@ -180,10 +185,12 @@ class autostatusType extends eZWorkflowEventType
         $socialNetworkPostName = 'SocialNetwork_' . $eventID;
         $loginPostName = 'Login_' . $eventID;
         $passwordPostName = 'Password_' . $eventID;
+        $useCronjobPostName = 'UseCronjob_' . $eventID;
 
         $event->setAttribute( 'data_int1', eZContentClass::classIDByIdentifier( $http->postVariable( $classIdentifierPostName ) ) );
         $event->setAttribute( 'data_int2', eZContentClassAttribute::classAttributeIDByIdentifier( $http->postVariable( $classIdentifierPostName )
                                                                                                   . '/' . $http->postVariable( $attributeIdentifierPostName ) ) );
+        $event->setAttribute( 'data_int3', intval( $http->hasPostVariable( $useCronjobPostName ) ) );
         $event->setAttribute( 'data_text1', $http->postVariable( $socialNetworkPostName ) );
         $event->setAttribute( 'data_text2', $http->postVariable( $loginPostName ) );
         $event->setAttribute( 'data_text3', $http->postVariable( $passwordPostName ) );
@@ -223,29 +230,62 @@ class autostatusType extends eZWorkflowEventType
             eZDebug::writeError( 'Cannot find ' . $attributeIdentifier . ' attribute', __METHOD__ );
             return eZWorkflowEventType::STATUS_ACCEPTED;
         }
-        if ( $dataMap[$attributeIdentifier]->hasContent() )
+        if ( !$dataMap[$attributeIdentifier]->hasContent() )
         {
-            $login = $event->attribute( 'login' );
-            $password = $event->attribute( 'password' );
-            try
-            {
-                $socialNetwork->update( $dataMap[$attributeIdentifier]->attribute( 'content' ),
-                                        $login, $password );
-            }
-            catch( Exception $e )
-            {
-                /**
-                 * @todo add a way to retry
-                 */
-                eZDebug::writeError( 'An error occured when updating status in '
-                        . $socialNetwork->attribute( 'name' ) . ' : ' . $e->getMessage(), 'Auto status workflow' );
-            }
+            eZDebug::writeDebug( 'Attribute "' . $attributeIdentifier . '" is empty', __METHOD__ );
+            return eZWorkflowEventType::STATUS_ACCEPTED;
+        }
+
+        if ( $event->attribute( 'use_cronjob' ) && !isset( $parameters['in_cronjob'] ) )
+        {
+            $message = self::replaceURL( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
+            $parameters['in_cronjob'] = true;
+            $parameters['message'] = $message;
+            $process->setParameters( $parameters );
+            $process->store();
+            return eZWorkflowEventType::STATUS_DEFERRED_TO_CRON_REPEAT;
+        }
+        else if ( $event->attribute( 'use_cronjob' ) && isset( $parameters['in_cronjob'] ) )
+        {
+            $message = $parameters['message'];
         }
         else
         {
-            eZDebug::writeDebug( 'Attribute "' . $attributeIdentifier . '" is empty', __METHOD__ );
+            $message = self::replaceURL( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
+        }
+        eZDebug::writeDebug( $message, __METHOD__ );
+
+        $login = $event->attribute( 'login' );
+        $password = $event->attribute( 'password' );
+        try
+        {
+            $socialNetwork->update( $message, $login, $password );
+        }
+        catch( Exception $e )
+        {
+            /**
+             * @todo add a way to retry
+             */
+            eZDebug::writeError( 'An error occured when updating status in '
+                    . $socialNetwork->attribute( 'name' ) . ' : ' . $e->getMessage(), 'Auto status workflow' );
         }
         return eZWorkflowEventType::STATUS_ACCEPTED;
+    }
+
+    static function replaceURL( $message, $contentObject )
+    {
+        if ( strpos( $message, '%url' ) !== false )
+        {
+            $node = $contentObject->attribute( 'main_node' );
+            $nodeURL = $node->attribute( 'url_alias' );
+            eZURI::transformURI( $nodeURL, false, 'full' );
+            $message = str_replace( '%url', $nodeURL, $message );
+        }
+        if ( strpos( $message, '%title' ) !== false )
+        {
+            $message = str_replace( '%title', $contentObject->attribute( 'name' ), $message );
+        }
+        return $message;
     }
 
 }
