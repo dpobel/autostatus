@@ -23,25 +23,10 @@
  *   MA 02110-1301, USA.
  */
 
-class autostatusTwitter extends autostatusSocialNetwork
+class autostatusTwitterClient extends Zend_Service_Twitter
 {
-
-    public function __construct()
-    {
-        $this->identifier = 'twitter';
-        $this->name = 'Twitter';
-    }
-
-
-    public function update( $message, $login, $password )
-    {
-        self::fixIncludePath();
-        $client = new autostatusTwitterClient( $login, $password );
-        $response = $client->statusUpdate( $message );
-    }
 
 
 }
-
 
 ?>

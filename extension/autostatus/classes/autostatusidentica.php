@@ -23,21 +23,22 @@
  *   MA 02110-1301, USA.
  */
 
-class autostatusTwitter extends autostatusSocialNetwork
+class autostatusIdentica extends autostatusSocialNetwork
 {
 
     public function __construct()
     {
-        $this->identifier = 'twitter';
-        $this->name = 'Twitter';
+        $this->identifier = 'identica';
+        $this->name = 'Identi.ca';
     }
 
 
     public function update( $message, $login, $password )
     {
         self::fixIncludePath();
-        $client = new autostatusTwitterClient( $login, $password );
+        $client = new autostatusIdenticaClient( $login, $password );
         $response = $client->statusUpdate( $message );
+        eZDebug::writeDebug($client);
     }
 
 

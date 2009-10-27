@@ -14,6 +14,6 @@ StatusDatatype[]=eztext
 # available social networks
 SocialNetworks[]
 SocialNetworks[]=twitter
-#SocialNetworks[]=identica
+SocialNetworks[]=identica
 
 */ ?>
