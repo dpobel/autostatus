@@ -75,7 +75,18 @@ abstract class autostatusSocialNetwork
      */
     public function hasAttribute( $name )
     {
-        return in_array( $name, array( 'identifier', 'name' ) );
+        return in_array( $name, $this->attributes() );
+    }
+
+    /**
+     * Return an array of the available attribute identifiers
+     * 
+     * @access public
+     * @return array
+     */
+    public function attributes()
+    {
+        return array( 'identifier', 'name' );
     }
 
     /**
