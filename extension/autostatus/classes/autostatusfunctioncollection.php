@@ -29,6 +29,12 @@
 class autostatusFunctionCollection
 {
 
+    /**
+     * Return the list of the available networks
+     * 
+     * @access public
+     * @return array( 'result' => array() )
+     */
     function networkList()
     {
         $ini = eZINI::instance( 'autostatus.ini' );

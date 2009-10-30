@@ -38,7 +38,6 @@ class autostatusIdentica extends autostatusSocialNetwork
         self::fixIncludePath();
         $client = new autostatusIdenticaClient( $login, $password );
         $response = $client->statusUpdate( $message );
-        eZDebug::writeDebug($client);
     }
 
 

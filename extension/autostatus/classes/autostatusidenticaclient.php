@@ -23,6 +23,12 @@
  *   MA 02110-1301, USA.
  */
 
+/**
+ * Clients class for Identi.ca social network.
+ * 
+ * @uses autostatusTwitterClient
+ * @author Damien Pobel
+ */
 class autostatusIdenticaClient extends autostatusTwitterClient
 {
 
@@ -33,25 +39,35 @@ class autostatusIdenticaClient extends autostatusTwitterClient
     }
 
 
+    /**
+     * Overload of the Zend_Service_Twitter method
+     * in order to not overwrite the path of the server
+     * 
+     * @param string $path 
+     * @access protected
+     * @return void
+     */
     protected function _prepare( $path )
     {
         // Get the URI object and configure it
-        if (!$this->_uri instanceof Zend_Uri_Http) {
-            throw new Zend_Rest_Client_Exception('URI object must be set before performing call');
+        if ( !$this->_uri instanceof Zend_Uri_Http )
+        {
+            throw new Zend_Rest_Client_Exception( 'URI object must be set before performing call' );
         }
 
         $uri = $this->_uri->getUri();
 
-        if ($path[0] != '/' && $uri[strlen($uri)-1] != '/') {
+        if ( $path[0] != '/' && $uri[strlen( $uri )-1] != '/' )
+        {
             $path = '/' . $path;
         }
-        $this->_uri->setPath($this->_uri->getPath() . $path);
+        $this->_uri->setPath( $this->_uri->getPath() . $path );
 
         /**
          * Get the HTTP client and configure it for the endpoint URI.  Do this each time
          * because the Zend_Http_Client instance is shared among all Zend_Service_Abstract subclasses.
          */
-        $this->_localHttpClient->resetParameters()->setUri($this->_uri);
+        $this->_localHttpClient->resetParameters()->setUri( $this->_uri );
     }
 
 }

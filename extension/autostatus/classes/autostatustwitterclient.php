@@ -23,6 +23,13 @@
  *   MA 02110-1301, USA.
  */
 
+/**
+ * autostatusTwitterClient is an empty subclass of Zend_Service_Twitter
+ * just to be consistent with autostatusIdenticaClient
+ * 
+ * @uses Zend_Service_Twitter
+ * @author Damien Pobel
+ */
 class autostatusTwitterClient extends Zend_Service_Twitter
 {
 

@@ -25,7 +25,14 @@
 
 abstract class autostatusSocialNetwork
 {
-
+    /**
+     * Indicates if include path has already been
+     * updated for Zend classes loading
+     * 
+     * @static
+     * @var boolean
+     * @access public
+     */
     static $includePathFixed = false;
 
     /**
@@ -44,13 +51,40 @@ abstract class autostatusSocialNetwork
      */
     protected $name = '';
 
+
+    /**
+     * Set the status message to $message in social network
+     * using $login and $password
+     * 
+     * @param string $message 
+     * @param string $login 
+     * @param string $password 
+     * @abstract
+     * @access public
+     * @return void
+     */
     abstract public function update($message, $login, $password);
 
+
+    /**
+     * Check if the attribute $name exist
+     * 
+     * @param mixed $name 
+     * @access public
+     * @return void
+     */
     public function hasAttribute( $name )
     {
         return in_array( $name, array( 'identifier', 'name' ) );
     }
 
+    /**
+     * Return the attribute $name 
+     * 
+     * @param string $name 
+     * @access public
+     * @return string|null
+     */
     public function attribute( $name )
     {
         if ( $name === 'identifier' )
@@ -68,6 +102,14 @@ abstract class autostatusSocialNetwork
         }
     }
 
+    /**
+     * Fetch the social network object associated with the identifier.
+     * 
+     * @param string $identifier 
+     * @static
+     * @access public
+     * @return object|null
+     */
     static public function fetchByIdentifier( $identifier )
     {
         $className = 'autostatus' . ucfirst( $identifier );
@@ -79,6 +121,14 @@ abstract class autostatusSocialNetwork
         return new $className;
     }
 
+    /**
+     * Change the include path so that Zend classes
+     * can be loaded.
+     * 
+     * @static
+     * @access public
+     * @return void
+     */
     static public function fixIncludePath()
     {
         if ( !self::$includePathFixed )
