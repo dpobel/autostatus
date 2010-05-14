@@ -260,7 +260,7 @@ class autostatusType extends eZWorkflowEventType
         try
         {
             $ini = eZINI::instance( 'autostatus.ini' );
-            if ( $ini->variable( 'AutoStatusSettings', 'Debug' ) !== 'disabled' )
+            if ( $ini->variable( 'AutoStatusSettings', 'Debug' ) === 'disabled' )
             {
                 $socialNetwork->update( $message, $login, $password );
             }
