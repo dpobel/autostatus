@@ -259,7 +259,17 @@ class autostatusType extends eZWorkflowEventType
         $password = $event->attribute( 'password' );
         try
         {
-            $socialNetwork->update( $message, $login, $password );
+            $ini = eZINI::instance( 'autostatus.ini' );
+            if ( $ini->variable( 'AutoStatusSettings', 'Debug' ) !== 'disabled' )
+            {
+                $socialNetwork->update( $message, $login, $password );
+            }
+            else
+            {
+                $logFile = $ini->variable( 'AutoStatusSettings', 'LogFile' );
+                $logMsg = '[DEBUG] status=' . $message . ' with ' . $login . '@' . $event->attribute( 'social_network_identifier' );
+                eZLog::write( $logMsg, $logFile );
+            }
         }
         catch( Exception $e )
         {
