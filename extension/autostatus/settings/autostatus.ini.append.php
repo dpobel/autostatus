@@ -15,6 +15,9 @@ StatusDatatype[]=eztext
 SocialNetworks[]
 SocialNetworks[]=twitter
 SocialNetworks[]=identica
+# alwayserror is a test social network that always throws
+# an exception when trying to update the status
+#SocialNetworks[]=alwayserror
 
 # when Debug is set to enabled, no status update is send
 # status updates are just logged
