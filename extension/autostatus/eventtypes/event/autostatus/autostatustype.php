@@ -257,6 +257,7 @@ class autostatusType extends eZWorkflowEventType
 
         $login = $event->attribute( 'login' );
         $password = $event->attribute( 'password' );
+        $errorMsg = false;
         try
         {
             $ini = eZINI::instance( 'autostatus.ini' );
@@ -267,18 +268,20 @@ class autostatusType extends eZWorkflowEventType
             else
             {
                 $logFile = $ini->variable( 'AutoStatusSettings', 'LogFile' );
-                $logMsg = '[DEBUG] status=' . $message . ' with ' . $login . '@' . $event->attribute( 'social_network_identifier' );
+                $logMsg = '[DEBUG] status=' . $message . ' with ' . $login
+                            . '@' . $event->attribute( 'social_network_identifier' );
                 eZLog::write( $logMsg, $logFile );
             }
         }
         catch( Exception $e )
         {
-            /**
-             * @todo add a way to retry
-             */
+            $errorMsg = $e->getMessage();
             eZDebug::writeError( 'An error occured when updating status in '
-                    . $socialNetwork->attribute( 'name' ) . ' : ' . $e->getMessage(), 'Auto status workflow' );
+                                 . $socialNetwork->attribute( 'name' ) . ' : '
+                                 . $e->getMessage(), 'Auto status workflow' );
         }
+        $statusEvent = statusUpdateEvent::create( $event->attribute( 'id' ), $message, $errorMsg );
+        $statusEvent->store();
         return eZWorkflowEventType::STATUS_ACCEPTED;
     }
 
