@@ -33,10 +33,23 @@
     {/foreach}
 
     {literal}
-    function updateAttributes( classSelect, idAttributesList, attributesArray, noAttributeMsg )
+    function updateAttributes( classSelect, idAttributesList, attributesArray, noAttributeMsg, noAttributeValue, alwaysDisplayNoAttributeOption )
     {
         if ( typeof idAttributesList != 'object' )
             var idAttributesList = [idAttributesList];
+            
+        if ( typeof attributesArray != 'object' )
+            var attributesArray = [attributesArray];
+            
+        if ( typeof noAttributeMsg != 'object' )
+            var noAttributeMsg = [noAttributeMsg];                        
+            
+        if ( typeof noAttributeValue != 'object' )
+            var noAttributeValue = [noAttributeValue];                                    
+            
+	    if ( typeof alwaysDisplayNoAttributeOption != 'object' )
+	        var alwaysDisplayNoAttributeOption = [alwaysDisplayNoAttributeOption];            
+            
             
         for ( var j=0; j < idAttributesList.length; j++ )
         {
@@ -45,12 +58,17 @@
 	        var attributes = attributesArray[j][classIdentifier];
 	        if ( !attributes || attributes.length == 0 )
 	        {
-	            attributeSelect.innerHTML = '<option value="">' + noAttributeMsg + '</option>';
+	            attributeSelect.innerHTML = '<option value="' + noAttributeValue[j] + '">' + noAttributeMsg[j] + '</option>';
 	            attributeSelect.disabled = true;
 	        }
 	        else
 	        {
-	            attributeSelect.innerHTML = '<option value=""></option>';
+                attributeSelect.innerHTML = '<option value=""></option>';
+	            if ( alwaysDisplayNoAttributeOption[j] )
+	            {
+                    attributeSelect.innerHTML += '<option value="' + noAttributeValue[j] + '">' + noAttributeMsg[j] + '</option>';	            
+	            }
+
 	            attributeSelect.disabled = false;
 	            for( var i=0; i!=attributes.length; i++)
 	            {
@@ -68,7 +86,13 @@
 
         <p>
             <label class="radio" for="ClassIdentifier_{$event.id}">{'Content class'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
-            <select id="ClassIdentifier_{$event.id}" name="ClassIdentifier_{$event.id}" onchange="updateAttributes( this, ['AttributeIdentifier_{$event.id}', 'AttributeIdentifierTrigger_{$event.id}'], [classIdentifierAttributesArray, classIdentifierAttributesArrayForTrigger], '{'No suitable attribute in the selected content class'|i18n( 'design/admin/workflow/eventtype/edit' )|wash( 'javascript' )}' )">
+            <select id="ClassIdentifier_{$event.id}" name="ClassIdentifier_{$event.id}" onchange="updateAttributes( this, 
+                                                                                                                    ['AttributeIdentifier_{$event.id}', 'AttributeIdentifierTrigger_{$event.id}'], 
+                                                                                                                    [classIdentifierAttributesArray, classIdentifierAttributesArrayForTrigger], 
+                                                                                                                    ['{'No suitable attribute in the selected content class'|i18n( 'design/admin/workflow/eventtype/edit' )|wash( 'javascript' )}', '{'Send every time'|i18n( 'design/admin/workflow/eventtype/edit' )|wash( 'javascript' )}' ],
+                                                                                                                    ['',-1],
+                                                                                                                    [false, true] 
+                                                                                                                  )">
                 <option value="">{'Choose a content class'|i18n( 'design/admin/workflow/eventtype/edit' )}</option>
             {foreach $classes as $class}
                 <option value="{$class.identifier}"{if $event.class_identifier|eq( $class.identifier )} selected="selected"{/if}>{$class.name|wash}</option>
