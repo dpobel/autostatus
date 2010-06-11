@@ -24,4 +24,7 @@ SocialNetworks[]=identica
 Debug=disabled
 LogFile=autostatus.log
 
+[AutoStatusLogSettings]
+Limit=20
+
 */ ?>

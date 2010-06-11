@@ -32,6 +32,12 @@
  */
 class statusUpdateEvent extends eZPersistentObject
 {
+    protected $ID;
+    protected $WorkflowEventID;
+    protected $StatusMessage;
+    protected $Created;
+    protected $Modified;
+    protected $ErrorMessage;
 
     static function definition()
     {
@@ -39,11 +45,11 @@ class statusUpdateEvent extends eZPersistentObject
                                                                       'datatype' => 'integer',
                                                                       'default' => 0,
                                                                       'required' => true ),
-                                                       'event_id' => array( 'name' => 'Workflow event id',
+                                                       'event_id' => array( 'name' => 'WorkflowEventID',
                                                                             'datatype' => 'integer',
                                                                             'default' => 0,
                                                                             'required' => true ),
-                                                       'message' => array( 'name' => 'Status message',
+                                                       'message' => array( 'name' => 'StatusMessage',
                                                                            'datatype' => 'string',
                                                                            'default' => '',
                                                                            'required' => true ),
@@ -55,15 +61,28 @@ class statusUpdateEvent extends eZPersistentObject
                                                                             'datatype' => 'integer',
                                                                             'default' => 0,
                                                                             'required' => true ),
-                                                       'error_msg' => array( 'name' => 'Error message',
+                                                       'error_msg' => array( 'name' => 'ErrorMessage',
                                                                              'datatype' => 'string',
                                                                              'default' => '',
                                                                              'required' => true ) ),
                                     'keys' => array( 'id' ),
                                     'increment_key' => 'id',
+                                    'function_attributes' => array( 'event' => 'fetchEvent',
+                                                                    'is_error' => 'isError' ),
                                     'class_name' => 'statusUpdateEvent',
                                     'name' => 'statusupdateevent' );
         return $definition;
+    }
+
+    function fetchEvent()
+    {
+        $eventID = $this->attribute( 'event_id' );
+        return eZWorkflowEvent::fetch( $eventID );
+    }
+
+    function isError()
+    {
+        return ( $this->attribute( 'error_msg' ) !== '' );
     }
 
     /**
@@ -84,6 +103,23 @@ class statusUpdateEvent extends eZPersistentObject
                       'message' => $message,
                       'error_msg' => (string) $errorMsg );
         return new statusUpdateEvent( $row );
+    }
+
+    static function fetchList( $offset, $limit )
+    {
+        $result = eZPersistentObject::fetchObjectList( self::definition(),
+                                                       null, // field filters
+                                                       null, // conditions
+                                                       array( 'modified' => 'desc' ),
+                                                       array( 'limit' => $limit, 'offset' => $offset ),
+                                                       true );
+
+        return $result;
+    }
+
+    static function fetchListCount()
+    {
+        return eZPersistentObject::count( self::definition() );
     }
 
 }
