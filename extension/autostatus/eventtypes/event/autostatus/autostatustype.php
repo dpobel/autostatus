@@ -31,9 +31,11 @@
  *  - data_int1 : content class id
  *  - data_int2 : attribute id
  *  - date_int3 : use cronjob
+ *  - date_int4 : content attribute, if any, to condition the update
  *  - data_text1 : identifier of the social network
  *  - data_text2 : login on the social network
  *  - data_text3 : password on the social network
+ *  - data_text4 : siteaccess to generate URLs for
  *
  * @uses eZWorkflowEventType
  */
@@ -113,6 +115,10 @@ class autostatusType extends eZWorkflowEventType
             {
                 return $event->attribute( 'data_text3' );
             }
+            case 'siteaccess':
+            {
+                return $event->attribute( 'data_text4' );
+            }
         }
         return null;
     }
@@ -122,7 +128,8 @@ class autostatusType extends eZWorkflowEventType
         return array( 'class_identifier', 'class_id', 'attribute_identifier', 'attribute_id',
                       'class', 'attribute', 'use_cronjob',
                       'trigger_attribute_id', 'trigger_attribute_identifier', 'trigger_attribute',
-                      'social_network_identifier', 'social_network', 'login', 'password' );
+                      'social_network_identifier', 'social_network', 'login', 'password',
+                      'siteaccess' );
     }
 
 
@@ -139,6 +146,8 @@ class autostatusType extends eZWorkflowEventType
         $attributeIdentifierForTriggeringPostName = 'AttributeIdentifierTrigger_' . $eventID;
         $socialNetworkPostName = 'SocialNetwork_' . $eventID;
         $loginPostName = 'Login_' . $eventID;
+        $siteaccessPostName = 'Siteaccess_' . $eventID;
+
         $prefix = $event->attribute( 'workflow_type' )->attribute( 'group_name' ) . ' / '
                   . $event->attribute( 'workflow_type' )->attribute( 'name' ) . ' : ';
         $validation['processed'] = true;
@@ -200,6 +209,18 @@ class autostatusType extends eZWorkflowEventType
         {
             $event->setAttribute( 'data_text2', $http->postVariable( $loginPostName ) );
         }
+
+        if ( !$http->hasPostVariable( $siteaccessPostName )
+                || $http->postVariable( $siteaccessPostName ) == '' )
+        {
+            $finalState = eZInputValidator::STATE_INVALID;
+            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'No values given for siteaccess' ) );
+        }
+        else
+        {
+            $event->setAttribute( 'data_text4', $http->postVariable( $siteaccessPostName ) );
+        }
+
         return $finalState;
     }
 
@@ -218,6 +239,7 @@ class autostatusType extends eZWorkflowEventType
         $loginPostName = 'Login_' . $eventID;
         $passwordPostName = 'Password_' . $eventID;
         $useCronjobPostName = 'UseCronjob_' . $eventID;
+        $siteaccessPostName = 'Siteaccess_' . $eventID;
 
         $event->setAttribute( 'data_int1', eZContentClass::classIDByIdentifier( $http->postVariable( $classIdentifierPostName ) ) );
         $event->setAttribute( 'data_int2', eZContentClassAttribute::classAttributeIDByIdentifier( $http->postVariable( $classIdentifierPostName )
@@ -235,6 +257,7 @@ class autostatusType extends eZWorkflowEventType
         $event->setAttribute( 'data_text1', $http->postVariable( $socialNetworkPostName ) );
         $event->setAttribute( 'data_text2', $http->postVariable( $loginPostName ) );
         $event->setAttribute( 'data_text3', $http->postVariable( $passwordPostName ) );
+        $event->setAttribute( 'data_text4', $http->postVariable( $siteaccessPostName ) );
     }
 
 
@@ -285,7 +308,7 @@ class autostatusType extends eZWorkflowEventType
         {
             if ( $event->attribute( 'use_cronjob' ) && !isset( $parameters['in_cronjob'] ) )
             {
-                $message = self::replaceURL( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
+                $message = self::substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
                 $parameters['in_cronjob'] = true;
                 $parameters['message'] = $message;
                 $process->setParameters( $parameters );
@@ -298,7 +321,7 @@ class autostatusType extends eZWorkflowEventType
             }
             else
             {
-                $message = self::replaceURL( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
+                $message = self::substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event );
             }
             eZDebug::writeDebug( $message, __METHOD__ );
 
@@ -333,17 +356,71 @@ class autostatusType extends eZWorkflowEventType
         return eZWorkflowEventType::STATUS_ACCEPTED;
     }
 
-    static function replaceURL( $message, $contentObject )
+    static function substituteFormats( $message, $contentObject, $event )
     {
         if ( strpos( $message, '%url' ) !== false )
         {
+            require_once( 'access.php' );
+            $uriAccess  = isset( $GLOBALS['eZCurrentAccess'] ) && isset( $GLOBALS['eZCurrentAccess']['type'] ) && $GLOBALS['eZCurrentAccess']['type'] == EZ_ACCESS_TYPE_URI;
+            $hostAccess = isset( $GLOBALS['eZCurrentAccess'] ) && isset( $GLOBALS['eZCurrentAccess']['type'] ) && $GLOBALS['eZCurrentAccess']['type'] == EZ_ACCESS_TYPE_HTTP_HOST;
+
+            // Prior to any handling on the access, check whether the required access
+            // is different from the current one. use $GLOBALS['eZCurrentAccess']['name']
+            $alterUrl = ( $event->attribute( 'siteaccess' ) == -1 or $event->attribute( 'siteaccess' ) == $GLOBALS['eZCurrentAccess']['name'] ) ? false : true ;
+
+            if ( $alterUrl and $uriAccess )
+            {
+                // store access path
+                $previousAccessPath = eZSys::instance()->AccessPath;
+                // clear access path
+                eZSys::clearAccessPath();
+                // set new access path with siteaccess name
+                eZSys::addAccessPath( 'site_testnewdesign' );
+            }
+
             $node = $contentObject->attribute( 'main_node' );
             $nodeURL = $node->attribute( 'url_alias' );
             eZURI::transformURI( $nodeURL, false, 'full' );
+
+            if ( $alterUrl and $hostAccess )
+            {
+                //changeAccess( $previousAccess );
+                // retrieve domain name associated to the requested siteaccess :
+                $ini = eZINI::instance();
+                $matchMapItems = $ini->variableArray( 'SiteAccessSettings', 'HostMatchMapItems' );
+                foreach ( $matchMapItems as $matchMapItem )
+                {
+                    if ( $matchMapItem[1] == 'site_testnewdesign' )
+                    {
+                        $host = $matchMapItem[0];
+                        break;
+                    }
+                }
+                if ( isset( $host ) )
+                {
+                    $uriParts = explode( eZSys::hostname(), $nodeURL );
+                    $nodeURL = implode( $host, $uriParts );
+                }
+
+                eZDebug::writeDebug( eZSys::hostname(), __METHOD__ );
+                eZDebug::writeDebug( $nodeURL, __METHOD__ );
+            }
+
             $message = str_replace( '%url', $nodeURL, $message );
+
+            if ( $alterUrl and $uriAccess )
+            {
+                // clear access path
+                eZSys::clearAccessPath();
+                // restore previous value
+                eZSys::addAccessPath( $previousAccessPath );
+            }
         }
         if ( strpos( $message, '%title' ) !== false )
         {
+            // TODO : add length check. If shortage, shorten the name with '…'
+            //        the URL can wil lbe shortened from any size to 20
+            //        (see http://searchengineland.com/analysis-which-url-shortening-service-should-you-use-17204)
             $message = str_replace( '%title', $contentObject->attribute( 'name' ), $message );
         }
         return $message;

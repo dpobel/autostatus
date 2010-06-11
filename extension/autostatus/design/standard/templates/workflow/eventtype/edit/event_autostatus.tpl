@@ -167,5 +167,18 @@
             <input type="checkbox" value="1" name="UseCronjob_{$event.id}" id="UseCronjob_{$event.id}"{if $event.use_cronjob} checked="checked"{/if} />
         </p>
     </fieldset>
+    <br />
+    <fieldset>
+        <legend>{'Siteaccess to generate URLs for'|i18n( 'design/admin/workflow/eventtype/edit' )} <em>({'only works for "host" and "uri" MatchOrder values'|i18n( 'design/admin/workflow/eventtype/edit' )})</em></legend>
+        <p>
+            <label for="Siteaccess_{$event.id}" class="radio">{'Choose siteaccess'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
+            <select id="Siteaccess_{$event.id}" name="Siteaccess_{$event.id}">
+                <option value="-1">{'Current one'|i18n( 'design/admin/workflow/eventtype/edit' )}</option>
+                {foreach ezini( 'SiteAccessSettings', 'RelatedSiteAccessList' ) as $siteaccess}
+                    <option value="{$siteaccess}">{$siteaccess}</option>    
+                {/foreach}
+            </select>            
+        </p>
+    </fieldset>    
 </div>
 {undef $classes $attributes $social_networks $allowed_datatypes}
