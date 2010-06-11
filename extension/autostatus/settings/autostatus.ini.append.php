@@ -11,6 +11,15 @@ StatusDatatype[]
 StatusDatatype[]=ezstring
 StatusDatatype[]=eztext
 
+# array of datatypes that can be used to trigger
+# the sending of a status message
+# If you add a new type here, make sure the return value
+# of the content() method of the corresponding eZContentObjectAttribute
+# object can be interpreted as a boolean value. Check l.287 in
+# eventtypes/event/autostatus/autostatustype.php
+StatusTriggerDatatype[]
+StatusTriggerDatatype[]=ezboolean
+
 # available social networks
 SocialNetworks[]
 SocialNetworks[]=twitter

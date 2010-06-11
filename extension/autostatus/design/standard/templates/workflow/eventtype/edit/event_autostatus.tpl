@@ -5,20 +5,29 @@
 {def $classes=fetch( 'class', 'list', hash( 'sort_by', array( 'name', true() ) ) )
      $attributes = array()
      $social_networks = fetch( autostatus, network_list )
-     $allowed_datatypes = ezini( 'AutoStatusSettings', 'StatusDatatype', 'autostatus.ini',, true() )}
+     $allowed_datatypes = ezini( 'AutoStatusSettings', 'StatusDatatype', 'autostatus.ini',, true() )
+     $allowed_datatypes_for_trigger = ezini( 'AutoStatusSettings', 'StatusTriggerDatatype', 'autostatus.ini',, true() )     
+     }
 <script type="text/javascript">
 <!--
     var classIdentifierAttributesArray = new Array();
+    var classIdentifierAttributesArrayForTrigger = new Array();    
     {foreach $classes as $class}
         {set $attributes = fetch( 'class', 'attribute_list', hash( 'class_id', $class.id ) )}
 
     classIdentifierAttributesArray["{$class.identifier}"] = new Array();
+    classIdentifierAttributesArrayForTrigger["{$class.identifier}"] = new Array();
         {foreach $attributes as $attribute}
             {if $allowed_datatypes|contains( $attribute.data_type_string )}
 
     classIdentifierAttributesArray["{$class.identifier}"].push( {ldelim}identifier: "{$attribute.identifier}",
                                                                         datatype: "{$attribute.data_type_string}",
                                                                         name: "{$attribute.name|wash( 'javascript' )}"{rdelim} );{/if}
+            {if $allowed_datatypes_for_trigger|contains( $attribute.data_type_string )}
+
+    classIdentifierAttributesArrayForTrigger["{$class.identifier}"].push( {ldelim}identifier: "{$attribute.identifier}",
+                                                                        datatype: "{$attribute.data_type_string}",
+                                                                        name: "{$attribute.name|wash( 'javascript' )}"{rdelim} );{/if}                                                                        
         {/foreach}
 
     {/foreach}
@@ -26,22 +35,28 @@
     {literal}
     function updateAttributes( classSelect, idAttributesList, attributesArray, noAttributeMsg )
     {
-        var attributeSelect = document.getElementById( idAttributesList );
-        var classIdentifier = classSelect.options[classSelect.selectedIndex].value;
-        var attributes = attributesArray[classIdentifier];
-        if ( !attributes || attributes.length == 0 )
+        if ( typeof idAttributesList != 'object' )
+            var idAttributesList = [idAttributesList];
+            
+        for ( var j=0; j < idAttributesList.length; j++ )
         {
-            attributeSelect.innerHTML = '<option value="">' + noAttributeMsg + '</option>';
-            attributeSelect.disabled = true;
-        }
-        else
-        {
-            attributeSelect.innerHTML = '<option value=""></option>';
-            attributeSelect.disabled = false;
-            for( var i=0; i!=attributes.length; i++)
-            {
-                attributeSelect.innerHTML += '<option value="' + attributes[i]['identifier'] + '">' + attributes[i]['name'] + ' (' + attributes[i]['datatype'] + ')</option>';
-            }
+	        var attributeSelect = document.getElementById( idAttributesList[j] );
+	        var classIdentifier = classSelect.options[classSelect.selectedIndex].value;
+	        var attributes = attributesArray[j][classIdentifier];
+	        if ( !attributes || attributes.length == 0 )
+	        {
+	            attributeSelect.innerHTML = '<option value="">' + noAttributeMsg + '</option>';
+	            attributeSelect.disabled = true;
+	        }
+	        else
+	        {
+	            attributeSelect.innerHTML = '<option value=""></option>';
+	            attributeSelect.disabled = false;
+	            for( var i=0; i!=attributes.length; i++)
+	            {
+	                attributeSelect.innerHTML += '<option value="' + attributes[i]['identifier'] + '">' + attributes[i]['name'] + ' (' + attributes[i]['datatype'] + ')</option>';
+	            }
+	        }
         }
     }
     {/literal}
@@ -53,7 +68,7 @@
 
         <p>
             <label class="radio" for="ClassIdentifier_{$event.id}">{'Content class'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
-            <select id="ClassIdentifier_{$event.id}" name="ClassIdentifier_{$event.id}" onchange="updateAttributes( this, 'AttributeIdentifier_{$event.id}', classIdentifierAttributesArray, '{'No suitable attribute in the selected content class'|i18n( 'design/admin/workflow/eventtype/edit' )|wash( 'javascript' )}' )">
+            <select id="ClassIdentifier_{$event.id}" name="ClassIdentifier_{$event.id}" onchange="updateAttributes( this, ['AttributeIdentifier_{$event.id}', 'AttributeIdentifierTrigger_{$event.id}'], [classIdentifierAttributesArray, classIdentifierAttributesArrayForTrigger], '{'No suitable attribute in the selected content class'|i18n( 'design/admin/workflow/eventtype/edit' )|wash( 'javascript' )}' )">
                 <option value="">{'Choose a content class'|i18n( 'design/admin/workflow/eventtype/edit' )}</option>
             {foreach $classes as $class}
                 <option value="{$class.identifier}"{if $event.class_identifier|eq( $class.identifier )} selected="selected"{/if}>{$class.name|wash}</option>
@@ -75,6 +90,30 @@
 
     </fieldset>
     <br />
+    
+    <fieldset>
+        <legend>{'Class attribute to trigger the sending'|i18n( 'design/admin/workflow/eventtype/edit' )}</legend>
+        <p>
+            <label class="radio" for="AttributeIdentifierTrigger_{$event.id}">{'Attribute used to trigger the sending'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
+            <select id="AttributeIdentifierTrigger_{$event.id}" name="AttributeIdentifierTrigger_{$event.id}"{cond( $event.class_id|eq( '' ), ' disabled="disabled"', '' )}>
+            <optgroup label="{'Do not use an attribute'|i18n( 'design/admin/workflow/eventtype/edit' )}">
+                <option value="-1" {if or( $event.trigger_attribute_id|not, eq( $event.trigger_attribute_id, -1 ) )} selected="selected"{/if}><em>{'Send every time'|i18n( 'design/admin/workflow/eventtype/edit' )}</em></option>
+            </optgroup>
+            {if $event.class_id|ne( '' )}
+            <optgroup label="{'Available attributes'|i18n( 'design/admin/workflow/eventtype/edit' )}">                         
+                {foreach fetch( class, attribute_list, hash( class_id, $event.class_id ) ) as $attribute}
+                    {if $allowed_datatypes|contains( $attribute.data_type_string )}
+                <option value="{$attribute.identifier}"{if $attribute.id|eq( $event.attribute_id )} selected="selected"{/if}>{$attribute.name|wash}</option>
+                    {/if}
+                {/foreach}
+            </optgroup>                
+            {/if}
+            </select>
+        </p>
+
+    </fieldset>
+    <br />    
+    
     <fieldset>
         <legend>{'Account informations'|i18n( 'design/admin/workflow/eventtype/edit' )}</legend>
         <p>

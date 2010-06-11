@@ -1,4 +1,4 @@
-<?php
+<?php /*
 #
 # $Id$
 # $HeadURL$
@@ -8,4 +8,4 @@
 DesignExtensions[]=autostatus
 
 
-?>
+*/ ?>

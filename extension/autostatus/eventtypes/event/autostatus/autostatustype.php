@@ -34,7 +34,7 @@
  *  - data_text1 : identifier of the social network
  *  - data_text2 : login on the social network
  *  - data_text3 : password on the social network
- * 
+ *
  * @uses eZWorkflowEventType
  */
 class autostatusType extends eZWorkflowEventType
@@ -84,6 +84,19 @@ class autostatusType extends eZWorkflowEventType
             {
                 return eZContentClassAttribute::fetch( $event->attribute( 'data_int2' ) );
             }
+            case 'trigger_attribute_id':
+            {
+                return $event->attribute( 'data_int4' );
+            }
+            case 'trigger_attribute_identifier':
+            {
+                $attributeID = $event->attribute( 'data_int4' );
+                return eZContentClassAttribute::classAttributeIdentifierByID( $attributeID );
+            }
+            case 'trigger_attribute':
+            {
+                return eZContentClassAttribute::fetch( $event->attribute( 'data_int4' ) );
+            }
             case 'social_network_identifier':
             {
                 return $event->attribute( 'data_text1' );
@@ -108,6 +121,7 @@ class autostatusType extends eZWorkflowEventType
     {
         return array( 'class_identifier', 'class_id', 'attribute_identifier', 'attribute_id',
                       'class', 'attribute', 'use_cronjob',
+                      'trigger_attribute_id', 'trigger_attribute_identifier', 'trigger_attribute',
                       'social_network_identifier', 'social_network', 'login', 'password' );
     }
 
@@ -122,6 +136,7 @@ class autostatusType extends eZWorkflowEventType
         $eventID = $event->attribute( 'id' );
         $classIdentifierPostName = 'ClassIdentifier_' . $eventID;
         $attributeIdentifierPostName = 'AttributeIdentifier_' . $eventID;
+        $attributeIdentifierForTriggeringPostName = 'AttributeIdentifierTrigger_' . $eventID;
         $socialNetworkPostName = 'SocialNetwork_' . $eventID;
         $loginPostName = 'Login_' . $eventID;
         $prefix = $event->attribute( 'workflow_type' )->attribute( 'group_name' ) . ' / '
@@ -148,6 +163,22 @@ class autostatusType extends eZWorkflowEventType
         {
             $event->setAttribute( 'data_int2', eZContentClassAttribute::classAttributeIDByIdentifier( $http->postVariable( $classIdentifierPostName )
                                                                                                       . '/' . $http->postVariable( $attributeIdentifierPostName ) ) );
+        }
+        if ( !$http->hasPostVariable( $attributeIdentifierForTriggeringPostName ) )
+        {
+            $finalState = eZInputValidator::STATE_INVALID;
+            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Invalid way of triggering the udpate (none actually)' ) );
+        }
+        else
+        {
+            $value = $http->postVariable( $attributeIdentifierForTriggeringPostName );
+            if ( eZContentClassAttribute::classAttributeIDByIdentifier( $http->postVariable( $classIdentifierPostName )
+                                                                        . '/' . $http->postVariable( $attributeIdentifierForTriggeringPostName ) ) )
+            {
+                $value = eZContentClassAttribute::classAttributeIDByIdentifier( $http->postVariable( $classIdentifierPostName )
+                                                                        . '/' . $http->postVariable( $attributeIdentifierForTriggeringPostName ) );
+            }
+            $event->setAttribute( 'data_int4', $value );
         }
         if ( !$http->hasPostVariable( $socialNetworkPostName )
                 || !is_object( autostatusSocialNetwork::fetchByIdentifier( $http->postVariable( $socialNetworkPostName ) ) ) )
@@ -182,6 +213,7 @@ class autostatusType extends eZWorkflowEventType
         $eventID = $event->attribute( 'id' );
         $classIdentifierPostName = 'ClassIdentifier_' . $eventID;
         $attributeIdentifierPostName = 'AttributeIdentifier_' . $eventID;
+        $triggerAttributeIdentifierPostName = 'AttributeIdentifierTrigger_' . $eventID;
         $socialNetworkPostName = 'SocialNetwork_' . $eventID;
         $loginPostName = 'Login_' . $eventID;
         $passwordPostName = 'Password_' . $eventID;
@@ -190,6 +222,15 @@ class autostatusType extends eZWorkflowEventType
         $event->setAttribute( 'data_int1', eZContentClass::classIDByIdentifier( $http->postVariable( $classIdentifierPostName ) ) );
         $event->setAttribute( 'data_int2', eZContentClassAttribute::classAttributeIDByIdentifier( $http->postVariable( $classIdentifierPostName )
                                                                                                   . '/' . $http->postVariable( $attributeIdentifierPostName ) ) );
+        $value = $http->postVariable( $triggerAttributeIdentifierPostName );
+        if ( eZContentClassAttribute::classAttributeIDByIdentifier( $http->postVariable( $classIdentifierPostName )
+                                                                    . '/' . $http->postVariable( $triggerAttributeIdentifierPostName ) ) )
+        {
+            $value = eZContentClassAttribute::classAttributeIDByIdentifier( $http->postVariable( $classIdentifierPostName )
+                                                                    . '/' . $http->postVariable( $triggerAttributeIdentifierPostName ) );
+        }
+        $event->setAttribute( 'data_int4', $value );
+
         $event->setAttribute( 'data_int3', intval( $http->hasPostVariable( $useCronjobPostName ) ) );
         $event->setAttribute( 'data_text1', $http->postVariable( $socialNetworkPostName ) );
         $event->setAttribute( 'data_text2', $http->postVariable( $loginPostName ) );
@@ -236,52 +277,59 @@ class autostatusType extends eZWorkflowEventType
             return eZWorkflowEventType::STATUS_ACCEPTED;
         }
 
-        if ( $event->attribute( 'use_cronjob' ) && !isset( $parameters['in_cronjob'] ) )
+        if ( $event->attribute( 'trigger_attribute_id' ) == -1 or
+             ( $event->attribute( 'trigger_attribute' ) and
+               $dataMap[$event->attribute( 'trigger_attribute_identifier' )]->attribute( 'content' )
+             )
+           )
         {
-            $message = self::replaceURL( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
-            $parameters['in_cronjob'] = true;
-            $parameters['message'] = $message;
-            $process->setParameters( $parameters );
-            $process->store();
-            return eZWorkflowEventType::STATUS_DEFERRED_TO_CRON_REPEAT;
-        }
-        else if ( $event->attribute( 'use_cronjob' ) && isset( $parameters['in_cronjob'] ) )
-        {
-            $message = $parameters['message'];
-        }
-        else
-        {
-            $message = self::replaceURL( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
-        }
-        eZDebug::writeDebug( $message, __METHOD__ );
-
-        $login = $event->attribute( 'login' );
-        $password = $event->attribute( 'password' );
-        $errorMsg = false;
-        try
-        {
-            $ini = eZINI::instance( 'autostatus.ini' );
-            if ( $ini->variable( 'AutoStatusSettings', 'Debug' ) === 'disabled' )
+            if ( $event->attribute( 'use_cronjob' ) && !isset( $parameters['in_cronjob'] ) )
             {
-                $socialNetwork->update( $message, $login, $password );
+                $message = self::replaceURL( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
+                $parameters['in_cronjob'] = true;
+                $parameters['message'] = $message;
+                $process->setParameters( $parameters );
+                $process->store();
+                return eZWorkflowEventType::STATUS_DEFERRED_TO_CRON_REPEAT;
+            }
+            else if ( $event->attribute( 'use_cronjob' ) && isset( $parameters['in_cronjob'] ) )
+            {
+                $message = $parameters['message'];
             }
             else
             {
-                $logFile = $ini->variable( 'AutoStatusSettings', 'LogFile' );
-                $logMsg = '[DEBUG] status=' . $message . ' with ' . $login
-                            . '@' . $event->attribute( 'social_network_identifier' );
-                eZLog::write( $logMsg, $logFile );
+                $message = self::replaceURL( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
             }
+            eZDebug::writeDebug( $message, __METHOD__ );
+
+            $login = $event->attribute( 'login' );
+            $password = $event->attribute( 'password' );
+            $errorMsg = false;
+            try
+            {
+                $ini = eZINI::instance( 'autostatus.ini' );
+                if ( $ini->variable( 'AutoStatusSettings', 'Debug' ) === 'disabled' )
+                {
+                    $socialNetwork->update( $message, $login, $password );
+                }
+                else
+                {
+                    $logFile = $ini->variable( 'AutoStatusSettings', 'LogFile' );
+                    $logMsg = '[DEBUG] status=' . $message . ' with ' . $login
+                                . '@' . $event->attribute( 'social_network_identifier' );
+                    eZLog::write( $logMsg, $logFile );
+                }
+            }
+            catch( Exception $e )
+            {
+                $errorMsg = $e->getMessage();
+                eZDebug::writeError( 'An error occured when updating status in '
+                                     . $socialNetwork->attribute( 'name' ) . ' : '
+                                     . $e->getMessage(), 'Auto status workflow' );
+            }
+            $statusEvent = statusUpdateEvent::create( $event->attribute( 'id' ), $message, $errorMsg );
+            $statusEvent->store();
         }
-        catch( Exception $e )
-        {
-            $errorMsg = $e->getMessage();
-            eZDebug::writeError( 'An error occured when updating status in '
-                                 . $socialNetwork->attribute( 'name' ) . ' : '
-                                 . $e->getMessage(), 'Auto status workflow' );
-        }
-        $statusEvent = statusUpdateEvent::create( $event->attribute( 'id' ), $message, $errorMsg );
-        $statusEvent->store();
         return eZWorkflowEventType::STATUS_ACCEPTED;
     }
 
