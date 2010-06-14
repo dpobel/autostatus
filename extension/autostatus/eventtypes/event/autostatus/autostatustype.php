@@ -321,7 +321,7 @@ class autostatusType extends eZWorkflowEventType
             }
             else
             {
-                $message = self::substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event );
+                $message = self::substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event, $socialNetwork );
             }
             eZDebug::writeDebug( $message, __METHOD__ );
 
@@ -356,8 +356,12 @@ class autostatusType extends eZWorkflowEventType
         return eZWorkflowEventType::STATUS_ACCEPTED;
     }
 
-    static function substituteFormats( $message, $contentObject, $event )
+    static function substituteFormats( $message, $contentObject, $event, $socialNetwork )
     {
+        // It is important here to make sure the final message does not exceed the maximum message length.
+        $initialLength = strlen( $message );
+        $maxMessageLength = $socialNetwork->getMaxMessageLength();
+
         if ( strpos( $message, '%url' ) !== false )
         {
             require_once( 'access.php' );
@@ -415,14 +419,39 @@ class autostatusType extends eZWorkflowEventType
                 // restore previous value
                 eZSys::addAccessPath( $previousAccessPath );
             }
+
+            // Calculate the remaining message room :
+            // the URL will be shortened from any size to 20
+            // (see http://searchengineland.com/analysis-which-url-shortening-service-should-you-use-17204)
+            //
+            // @FIXME : add support for other URL-shrinking services, and take their respective URL-length into account here.
+            if ( $maxMessageLength !== null )
+                $maxMessageLength = $maxMessageLength - ( $initialLength - /* '%url' */ 4 + /* bit.ly URL size, automatic twitter transformation */ 20 );
         }
+
         if ( strpos( $message, '%title' ) !== false )
         {
-            // TODO : add length check. If shortage, shorten the name with '…'
-            //        the URL can wil lbe shortened from any size to 20
-            //        (see http://searchengineland.com/analysis-which-url-shortening-service-should-you-use-17204)
-            $message = str_replace( '%title', $contentObject->attribute( 'name' ), $message );
+            // @TODO : add length check. If shortage, shorten the name with '…'
+            $title = $contentObject->attribute( 'name' );
+            if ( $maxMessageLength !== null )
+            {
+                if ( $maxMessageLength > -6 )
+                {
+                    $maxMessageLength = $maxMessageLength + /* '%title' */ 6;
+
+                    // shorten, if necessary, the title to fit the message size :
+                    if ( $maxMessageLength - strlen( $title ) < 0 )
+                    {
+                        $title = substr( $title, 0, $maxMessageLength -1 ) . '…';
+                    }
+                }
+                else
+                    $title = '';
+            }
+            $message = str_replace( '%title', $title, $message );
+            $maxMessageLength = $maxMessageLength - strlen( $title );
         }
+
         return $message;
     }
 

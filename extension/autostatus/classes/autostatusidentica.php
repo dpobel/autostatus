@@ -40,6 +40,14 @@ class autostatusIdentica extends autostatusSocialNetwork
         $response = $client->statusUpdate( $message );
     }
 
+    /**
+     * @link parent::getMaxMessageLength()
+     * @see parent::getMaxMessageLength()
+     */
+    public function getMaxMessageLength()
+    {
+        return null;
+    }
 
 }
 

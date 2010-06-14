@@ -40,7 +40,21 @@ class autostatusTwitter extends autostatusSocialNetwork
         $response = $client->statusUpdate( $message );
     }
 
-
+    /**
+     * @link parent::getMaxMessageLength()
+     * @see parent::getMaxMessageLength()
+     * @see autostatusTwitterClient::STATUS_MAX_CHARACTERS
+     */
+    public function getMaxMessageLength()
+    {
+        /*
+         * While a longer message will be shortened automatically, and the reminder linked to,
+         * ensuring the sent message does not exceed 140 characters makes
+         * it readable by all clients, even those not supporting the linked-remainder feature.
+         */
+        // return autostatusTwitterClient::STATUS_MAX_CHARACTERS;
+        return 140;
+    }
 }
 
 

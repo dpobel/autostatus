@@ -28,7 +28,7 @@ abstract class autostatusSocialNetwork
     /**
      * Indicates if include path has already been
      * updated for Zend classes loading
-     * 
+     *
      * @static
      * @var boolean
      * @access public
@@ -37,7 +37,7 @@ abstract class autostatusSocialNetwork
 
     /**
      * identifier of the social network
-     * 
+     *
      * @var string
      * @access protected
      */
@@ -45,7 +45,7 @@ abstract class autostatusSocialNetwork
 
     /**
      * name of the social network
-     * 
+     *
      * @var string
      * @access protected
      */
@@ -55,10 +55,10 @@ abstract class autostatusSocialNetwork
     /**
      * Set the status message to $message in social network
      * using $login and $password
-     * 
-     * @param string $message 
-     * @param string $login 
-     * @param string $password 
+     *
+     * @param string $message
+     * @param string $login
+     * @param string $password
      * @abstract
      * @access public
      * @return void
@@ -68,8 +68,8 @@ abstract class autostatusSocialNetwork
 
     /**
      * Check if the attribute $name exist
-     * 
-     * @param mixed $name 
+     *
+     * @param mixed $name
      * @access public
      * @return void
      */
@@ -80,7 +80,7 @@ abstract class autostatusSocialNetwork
 
     /**
      * Return an array of the available attribute identifiers
-     * 
+     *
      * @access public
      * @return array
      */
@@ -90,9 +90,9 @@ abstract class autostatusSocialNetwork
     }
 
     /**
-     * Return the attribute $name 
-     * 
-     * @param string $name 
+     * Return the attribute $name
+     *
+     * @param string $name
      * @access public
      * @return string|null
      */
@@ -115,8 +115,8 @@ abstract class autostatusSocialNetwork
 
     /**
      * Fetch the social network object associated with the identifier.
-     * 
-     * @param string $identifier 
+     *
+     * @param string $identifier
      * @static
      * @access public
      * @return object|null
@@ -135,7 +135,7 @@ abstract class autostatusSocialNetwork
     /**
      * Change the include path so that Zend classes
      * can be loaded.
-     * 
+     *
      * @static
      * @access public
      * @return void
@@ -151,6 +151,13 @@ abstract class autostatusSocialNetwork
         }
     }
 
+    /**
+     * Returns the maximum message length for the given social network, if any, null otherwise.
+     *
+     * @access public
+     * @return int The maximum message length for the given social network, if any, null otherwise.
+     */
+    abstract public function getMaxMessageLength();
 }
 
 
