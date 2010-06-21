@@ -379,7 +379,7 @@ class autostatusType extends eZWorkflowEventType
                 // clear access path
                 eZSys::clearAccessPath();
                 // set new access path with siteaccess name
-                eZSys::addAccessPath( 'site_testnewdesign' );
+                eZSys::addAccessPath( $event->attribute( 'siteaccess' ) );
             }
 
             $node = $contentObject->attribute( 'main_node' );
@@ -394,7 +394,7 @@ class autostatusType extends eZWorkflowEventType
                 $matchMapItems = $ini->variableArray( 'SiteAccessSettings', 'HostMatchMapItems' );
                 foreach ( $matchMapItems as $matchMapItem )
                 {
-                    if ( $matchMapItem[1] == 'site_testnewdesign' )
+                    if ( $matchMapItem[1] == $event->attribute( 'siteaccess' ) )
                     {
                         $host = $matchMapItem[0];
                         break;
