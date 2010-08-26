@@ -405,9 +405,14 @@ class autostatusType extends eZWorkflowEventType
                     $uriParts = explode( eZSys::hostname(), $nodeURL );
                     $nodeURL = implode( $host, $uriParts );
                 }
+            }
 
-                eZDebug::writeDebug( eZSys::hostname(), __METHOD__ );
-                eZDebug::writeDebug( $nodeURL, __METHOD__ );
+            // Last chance, if the URL still is not properly formed
+            // (can happen when run from a CLI script)
+            // @FIXME : This is clumsy, does not support SSLness, may be broken :)
+            if ( strpos( 'http', $nodeURL ) === false )
+            {
+                $nodeURL = 'http://' . trim( eZINI::instance()->variable( 'SiteSettings', 'SiteURL' ), '/' ) . $nodeURL;
             }
 
             $message = str_replace( '%url', $nodeURL, $message );
