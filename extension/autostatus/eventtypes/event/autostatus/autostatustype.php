@@ -410,7 +410,7 @@ class autostatusType extends eZWorkflowEventType
             // Last chance, if the URL still is not properly formed
             // (can happen when run from a CLI script)
             // @FIXME : This is clumsy, does not support SSLness, may be broken :)
-            if ( strpos( 'http', $nodeURL ) === false )
+            if ( strpos( $nodeURL, 'http' ) === false )
             {
                 $nodeURL = 'http://' . trim( eZINI::instance()->variable( 'SiteSettings', 'SiteURL' ), '/' ) . $nodeURL;
             }
