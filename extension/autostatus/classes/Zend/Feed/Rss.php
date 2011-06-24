@@ -15,9 +15,9 @@
  *
  * @category   Zend
  * @package    Zend_Feed
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Rss.php 18266 2009-09-18 18:32:30Z padraic $
+ * @version    $Id: Rss.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
 
@@ -43,7 +43,7 @@ require_once 'Zend/Feed/Entry/Rss.php';
  *
  * @category   Zend
  * @package    Zend_Feed
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Feed_Rss extends Zend_Feed_Abstract
@@ -82,7 +82,7 @@ class Zend_Feed_Rss extends Zend_Feed_Abstract
         // Find the base channel element and create an alias to it.
         $rdfTags = $this->_element->getElementsByTagNameNS('http://www.w3.org/1999/02/22-rdf-syntax-ns#', 'RDF');
         if ($rdfTags->length != 0) {
-        	$this->_element = $rdfTags->item(0);
+            $this->_element = $rdfTags->item(0);
         } else  {
             $this->_element = $this->_element->getElementsByTagName('channel')->item(0);
         }
@@ -411,6 +411,9 @@ class Zend_Feed_Rss extends Zend_Feed_Abstract
 
             if (isset($dataentry->guid)) {
                 $guid = $this->_element->createElement('guid', $dataentry->guid);
+                if (!Zend_Uri::check($dataentry->guid)) {
+                    $guid->setAttribute('isPermaLink', 'false');
+                }
                 $item->appendChild($guid);
             }
 

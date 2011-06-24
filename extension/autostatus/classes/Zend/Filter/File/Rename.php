@@ -14,9 +14,9 @@
  *
  * @category   Zend
  * @package    Zend_Filter
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Rename.php 16971 2009-07-22 18:05:45Z mikaelkael $
+ * @version    $Id: Rename.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
 /**
@@ -27,7 +27,7 @@ require_once 'Zend/Filter/Interface.php';
 /**
  * @category   Zend
  * @package    Zend_Filter
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Filter_File_Rename implements Zend_Filter_Interface
@@ -63,7 +63,6 @@ class Zend_Filter_File_Rename implements Zend_Filter_Interface
         }
 
         if (1 < func_num_args()) {
-            trigger_error('Support for multiple arguments is deprecated in favor of a single options array', E_USER_NOTICE);
             $argv = func_get_args();
             array_shift($argv);
             $source    = array_shift($argv);

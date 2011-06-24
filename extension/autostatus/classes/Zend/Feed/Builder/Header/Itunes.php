@@ -15,9 +15,9 @@
  *
  * @category   Zend
  * @package    Zend_Feed
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Itunes.php 16205 2009-06-21 19:08:45Z thomas $
+ * @version    $Id: Itunes.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
 
@@ -28,7 +28,7 @@
  *
  * @category   Zend
  * @package    Zend_Feed
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Feed_Builder_Header_Itunes extends ArrayObject
@@ -112,10 +112,10 @@ class Zend_Feed_Builder_Header_Itunes extends ArrayObject
     public function setOwner($name = '', $email = '')
     {
         if (!empty($email)) {
-        	/**
-        	 * @see Zend_Validate_EmailAddress
-        	 */
-        	require_once 'Zend/Validate/EmailAddress.php';
+            /**
+             * @see Zend_Validate_EmailAddress
+             */
+            require_once 'Zend/Validate/EmailAddress.php';
             $validate = new Zend_Validate_EmailAddress();
             if (!$validate->isValid($email)) {
                 /**

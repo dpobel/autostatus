@@ -14,9 +14,9 @@
  *
  * @category   Zend
  * @package    Zend_Filter
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: StringTrim.php 16417 2009-07-02 20:17:13Z thomas $
+ * @version    $Id: StringTrim.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
 /**
@@ -27,7 +27,7 @@ require_once 'Zend/Filter/Interface.php';
 /**
  * @category   Zend
  * @package    Zend_Filter
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Filter_StringTrim implements Zend_Filter_Interface
@@ -45,12 +45,22 @@ class Zend_Filter_StringTrim implements Zend_Filter_Interface
     /**
      * Sets filter options
      *
-     * @param  string $charList
+     * @param  string|array|Zend_Config $options
      * @return void
      */
-    public function __construct($charList = null)
+    public function __construct($options = null)
     {
-        $this->_charList = $charList;
+        if ($options instanceof Zend_Config) {
+            $options = $options->toArray();
+        } else if (!is_array($options)) {
+            $options          = func_get_args();
+            $temp['charlist'] = array_shift($options);
+            $options          = $temp;
+        }
+
+        if (array_key_exists('charlist', $options)) {
+            $this->setCharList($options['charlist']);
+        }
     }
 
     /**
@@ -103,8 +113,8 @@ class Zend_Filter_StringTrim implements Zend_Filter_Interface
     protected function _unicodeTrim($value, $charlist = '\\\\s')
     {
         $chars = preg_replace(
-            array( '/[\^\-\]\\\]/S', '/\\\{4}/S' ),
-            array( '\\\\\\0', '\\' ),
+            array( '/[\^\-\]\\\]/S', '/\\\{4}/S', '/\//'),
+            array( '\\\\\\0', '\\', '\/' ),
             $charlist
         );
 

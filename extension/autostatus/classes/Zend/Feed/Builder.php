@@ -15,9 +15,9 @@
  *
  * @category   Zend
  * @package    Zend_Feed
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
- * @version    $Id: Builder.php 16205 2009-06-21 19:08:45Z thomas $
+ * @version    $Id: Builder.php 23775 2011-03-01 17:25:24Z ralph $
  */
 
 
@@ -44,7 +44,7 @@ require_once 'Zend/Feed/Builder/Entry.php';
  *
  * @category   Zend
  * @package    Zend_Feed
- * @copyright  Copyright (c) 2005-2009 Zend Technologies USA Inc. (http://www.zend.com)
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
  * @license    http://framework.zend.com/license/new-bsd     New BSD License
  */
 class Zend_Feed_Builder implements Zend_Feed_Builder_Interface
@@ -212,7 +212,7 @@ class Zend_Feed_Builder implements Zend_Feed_Builder_Interface
      * @throws Zend_Feed_Builder_Exception
      * @return void
      */
-    private function _createHeader(array $data)
+    protected function _createHeader(array $data)
     {
         $mandatories = array('title', 'link', 'charset');
         foreach ($mandatories as $mandatory) {
@@ -340,7 +340,7 @@ class Zend_Feed_Builder implements Zend_Feed_Builder_Interface
      * @throws Zend_Feed_Builder_Exception
      * @return void
      */
-    private function _createEntries(array $data)
+    protected function _createEntries(array $data)
     {
         foreach ($data as $row) {
             $mandatories = array('title', 'link', 'description');
