@@ -1,0 +1,4 @@
+- Rewrite JavaScript code in event_autostatus.tpl
+- Load with AJAX the OAuth token/credential part
+- Fix selected value in event_autostatus.tpl form (siteaccess, trigger attribute)
+- Fix URL building with PathPrefix
