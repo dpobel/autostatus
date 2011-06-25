@@ -33,11 +33,18 @@ class autostatusTwitter extends autostatusSocialNetwork
     }
 
 
-    public function update( $message, $login, $password )
+    public function update( $message, $options )
     {
-        self::fixIncludePath();
-        $client = new autostatusTwitterClient( $login, $password );
+        $token = $options['token'];
+        $client = new autostatusTwitterClient(
+            array(
+                'username' => $token->screen_name,
+                'accessToken' => $token
+            )
+        );
         $response = $client->statusUpdate( $message );
+        eZDebug::writeDebug( $response );
+        return $response;
     }
 
     /**
@@ -54,6 +61,33 @@ class autostatusTwitter extends autostatusSocialNetwork
          */
         // return autostatusTwitterClient::STATUS_MAX_CHARACTERS;
         return 140;
+    }
+
+
+    /**
+     * @link parent::oauthConfig()
+     */
+    public function oauthConfig( $callbackUrl = '' )
+    {
+        $ini = eZINI::instance( 'autostatus.ini' );
+        $config = array(
+            'siteUrl' => $ini->variable( 'TwitterSettings', 'SiteURL' ),
+            'consumerKey' => $ini->variable( 'TwitterSettings', 'ConsumerKey' ),
+            'consumerSecret' => $ini->variable( 'TwitterSettings', 'ConsumerSecret' )
+        );
+        if ( $callbackUrl != '' )
+        {
+            $config['callbackUrl'] = $callbackUrl;
+        }
+        return $config;
+    }
+
+    /**
+     * @link parent::requireOauth()
+     */
+    public function requireOauth()
+    {
+        return true;
     }
 }
 

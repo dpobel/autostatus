@@ -33,9 +33,19 @@ class autostatusAlwayserror extends autostatusSocialNetwork
     }
 
 
-    public function update( $message, $login, $password )
+    public function update( $message, $options )
     {
         throw new Exception( 'ALWAYS ERROR' );
+    }
+
+    public function oauthConfig( $callbackURI = '' )
+    {
+        throw new BadMethodException( 'OAuth is not supported' );
+    }
+
+    public function requireOauth()
+    {
+        return false;
     }
 
 

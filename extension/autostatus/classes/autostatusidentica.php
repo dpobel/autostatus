@@ -33,11 +33,17 @@ class autostatusIdentica extends autostatusSocialNetwork
     }
 
 
-    public function update( $message, $login, $password )
+    public function update( $message, $options )
     {
-        self::fixIncludePath();
-        $client = new autostatusIdenticaClient( $login, $password );
+        $token = $options['token'];
+        $client = new autostatusTwitterClient(
+            array(
+                'username' => '',
+                'accessToken' => $token
+            )
+        );
         $response = $client->statusUpdate( $message );
+        return $response;
     }
 
     /**
@@ -49,6 +55,31 @@ class autostatusIdentica extends autostatusSocialNetwork
         return null;
     }
 
+    /**
+     * @link parent::oauthConfig()
+     */
+    public function oauthConfig( $callbackUrl = '' )
+    {
+        $ini = eZINI::instance( 'autostatus.ini' );
+        $config = array(
+            'siteUrl' => $ini->variable( 'IdenticaSettings', 'SiteURL' ),
+            'consumerKey' => $ini->variable( 'IdenticaSettings', 'ConsumerKey' ),
+            'consumerSecret' => $ini->variable( 'IdenticaSettings', 'ConsumerSecret' )
+        );
+        if ( $callbackUrl != '' )
+        {
+            $config['callbackUrl'] = $callbackUrl;
+        }
+        return $config;
+    }
+
+    /**
+     * @link parent::requireOauth()
+     */
+    public function requireOauth()
+    {
+        return true;
+    }
 }
 
 

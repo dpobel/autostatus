@@ -36,6 +36,7 @@
  *  - data_text2 : login on the social network
  *  - data_text3 : password on the social network
  *  - data_text4 : siteaccess to generate URLs for
+ *  - data_text5 : oauth access token
  *
  * @uses eZWorkflowEventType
  */
@@ -119,6 +120,11 @@ class autostatusType extends eZWorkflowEventType
             {
                 return $event->attribute( 'data_text4' );
             }
+            case 'access_token':
+            {
+                autostatusSocialNetwork::fixIncludePath();
+                return unserialize( $event->attribute( 'data_text5' ) );
+            }
         }
         return null;
     }
@@ -129,7 +135,7 @@ class autostatusType extends eZWorkflowEventType
                       'class', 'attribute', 'use_cronjob',
                       'trigger_attribute_id', 'trigger_attribute_identifier', 'trigger_attribute',
                       'social_network_identifier', 'social_network', 'login', 'password',
-                      'siteaccess' );
+                      'siteaccess', 'access_token' );
     }
 
 
@@ -146,6 +152,7 @@ class autostatusType extends eZWorkflowEventType
         $attributeIdentifierForTriggeringPostName = 'AttributeIdentifierTrigger_' . $eventID;
         $socialNetworkPostName = 'SocialNetwork_' . $eventID;
         $loginPostName = 'Login_' . $eventID;
+        $passwordPostName = 'Password_' . $eventID;
         $siteaccessPostName = 'Siteaccess_' . $eventID;
 
         $prefix = $event->attribute( 'workflow_type' )->attribute( 'group_name' ) . ' / '
@@ -189,25 +196,61 @@ class autostatusType extends eZWorkflowEventType
             }
             $event->setAttribute( 'data_int4', $value );
         }
-        if ( !$http->hasPostVariable( $socialNetworkPostName )
-                || !is_object( autostatusSocialNetwork::fetchByIdentifier( $http->postVariable( $socialNetworkPostName ) ) ) )
+        $socialNetwork = null;
+        if ( !$http->hasPostVariable( $socialNetworkPostName ) )
         {
             $finalState = eZInputValidator::STATE_INVALID;
-            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Invalid social network' ) );
+            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'You need to choose a social network' ) );
         }
         else
         {
-            $event->setAttribute( 'data_text1', $http->postVariable( $socialNetworkPostName ) );
+            $socialNetwork = autostatusSocialNetwork::fetchByIdentifier( $http->postVariable( $socialNetworkPostName ) );
+            if ( $socialNetwork instanceof autostatusSocialNetwork )
+            {
+                $event->setAttribute( 'data_text1', $http->postVariable( $socialNetworkPostName ) );
+            }
+            else
+            {
+                $finalState = eZInputValidator::STATE_INVALID;
+                $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Invalid social network' ) );
+            }
         }
-        if ( !$http->hasPostVariable( $loginPostName )
-                || $http->postVariable( $loginPostName ) == '' )
+
+        if ( $socialNetwork !== null && !$socialNetwork->requireOauth() )
         {
-            $finalState = eZInputValidator::STATE_INVALID;
-            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Login cannot be empty' ) );
+            if ( !$http->hasPostVariable( $loginPostName )
+                    || $http->postVariable( $loginPostName ) == '' )
+            {
+                $finalState = eZInputValidator::STATE_INVALID;
+                $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Login cannot be empty' ) );
+            }
+            else
+            {
+                $event->setAttribute( 'data_text2', $http->postVariable( $loginPostName ) );
+            }
+            if ( !$http->hasPostVariable( $passwordPostName )
+                    || $http->postVariable( $passwordPostName ) == '' )
+            {
+                $finalState = eZInputValidator::STATE_INVALID;
+                $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Password cannot be empty' ) );
+            }
+            else
+            {
+                $event->setAttribute( 'data_text3', $http->postVariable( $passwordPostName ) );
+            }
         }
-        else
+        else if ( $socialNetwork !== null )
         {
-            $event->setAttribute( 'data_text2', $http->postVariable( $loginPostName ) );
+            $event->setAttribute( 'data_text3', '' );
+            $token = $event->attribute( 'access_token' );
+            if ( is_object( $token ) )
+            {
+                $event->setAttribute( 'data_text2', $token->screen_name );
+            }
+            else
+            {
+                $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'You have check your OAuth access' ) );
+            }
         }
 
         if ( !$http->hasPostVariable( $siteaccessPostName )
@@ -255,9 +298,39 @@ class autostatusType extends eZWorkflowEventType
 
         $event->setAttribute( 'data_int3', intval( $http->hasPostVariable( $useCronjobPostName ) ) );
         $event->setAttribute( 'data_text1', $http->postVariable( $socialNetworkPostName ) );
-        $event->setAttribute( 'data_text2', $http->postVariable( $loginPostName ) );
-        $event->setAttribute( 'data_text3', $http->postVariable( $passwordPostName ) );
+        $network = autostatusSocialNetwork::fetchByIdentifier( $http->postVariable( $socialNetworkPostName ) );
+        if ( !$network->requireOauth() )
+        {
+            $event->setAttribute( 'data_text2', $http->postVariable( $loginPostName ) );
+            $event->setAttribute( 'data_text3', $http->postVariable( $passwordPostName ) );
+        }
         $event->setAttribute( 'data_text4', $http->postVariable( $siteaccessPostName ) );
+    }
+
+    function customWorkflowEventHTTPAction( $http, $action, $workflowEvent )
+    {
+        autostatusSocialNetwork::fixIncludePath();
+        if ( $action === 'OAuthCheck' )
+        {
+            $networkIdentifier = $http->postVariable( 'SocialNetwork_' . $workflowEvent->attribute( 'id' ) );
+            $network = autostatusSocialNetwork::fetchByIdentifier( $networkIdentifier );
+            if ( !$network instanceof autostatusSocialNetwork )
+            {
+                // TODO handle error ?
+                return ;
+            }
+            $workflowEvent->setAttribute( 'data_text1', $networkIdentifier );
+            $workflowEvent->store();
+            $uri = 'autostatus/oauth/' . $networkIdentifier . '/' . $workflowEvent->attribute( 'id' );
+            eZURI::transformURI( $uri, false, 'full' );
+            $config = $network->oauthConfig( $uri );
+            $consumer = new Zend_Oauth_Consumer( $config );
+            $token = $consumer->getRequestToken();
+            $http->setSessionVariable( autostatusSocialNetwork::TOKEN_SESSION_VAR, serialize( $token ) );
+            $redirectURL = $consumer->getRedirectUrl();
+            eZHTTPTool::redirect( $redirectURL );
+            eZExecution::cleanExit();
+        }
     }
 
 
@@ -265,6 +338,8 @@ class autostatusType extends eZWorkflowEventType
     {
         $parameters = $process->attribute( 'parameter_list' );
         eZDebug::writeDebug( $parameters, __METHOD__ );
+
+        autostatusSocialNetwork::fixIncludePath();
 
         $classIdentifier = $event->attribute( 'class_identifier' );
         $object = eZContentObject::fetch( $parameters['object_id'] );
@@ -325,15 +400,23 @@ class autostatusType extends eZWorkflowEventType
             }
             eZDebug::writeDebug( $message, __METHOD__ );
 
-            $login = $event->attribute( 'login' );
-            $password = $event->attribute( 'password' );
+            $options = array();
+            if ( $socialNetwork->attribute( 'require_oauth' ) )
+            {
+                $options['token'] = $event->attribute( 'access_token' );
+            }
+            else
+            {
+                $options['login'] = $event->attribute( 'login' );
+                $options['password'] = $event->attribute( 'password' );
+            }
             $errorMsg = false;
             try
             {
                 $ini = eZINI::instance( 'autostatus.ini' );
                 if ( $ini->variable( 'AutoStatusSettings', 'Debug' ) === 'disabled' )
                 {
-                    $socialNetwork->update( $message, $login, $password );
+                    $socialNetwork->update( $message, $options );
                 }
                 else
                 {

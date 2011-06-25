@@ -4,6 +4,16 @@
 # $HeadURL$
 #
 
+[TwitterSettings]
+ConsumerKey=xwONpUbHRNQaMC35jyNLw
+ConsumerSecret=QJCWPOeiCrnkzvvs67YhH82S5TgExtIwxaJtPRDno
+SiteURL=https://api.twitter.com/oauth
+
+[IdenticaSettings]
+ConsumerKey=0e09a4c893ae12cfc180262e31d7ffbe
+ConsumerSecret=43e4894e6c7f5ce720adfc914d47a95e
+SiteURL=https://identi.ca/api/oauth
+
 [AutoStatusSettings]
 # array of datatypes that can be used to store
 # a status message

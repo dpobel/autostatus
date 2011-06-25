@@ -2,14 +2,51 @@
    $Id$
    $HeadURL$
 *}
+{ezscript_require( 'ezjsc::jquery' )}
 {def $classes=fetch( 'class', 'list', hash( 'sort_by', array( 'name', true() ) ) )
      $attributes = array()
      $social_networks = fetch( autostatus, network_list )
+     $selected_social_network = false
      $allowed_datatypes = ezini( 'AutoStatusSettings', 'StatusDatatype', 'autostatus.ini',, true() )
      $allowed_datatypes_for_trigger = ezini( 'AutoStatusSettings', 'StatusTriggerDatatype', 'autostatus.ini',, true() )     
      }
 <script type="text/javascript">
 <!--
+    // TODO : rewrite this ugly JS
+    var socialNetworksOAuth = {ldelim}
+    {foreach $social_networks as $network}
+        {$network.identifier}: {cond( $network.require_oauth, 'true', 'false' )}
+        {delimiter},{/delimiter}
+    {/foreach}
+    {rdelim};
+
+{literal}
+    function updateAuthForm( select, eventID, oauth )
+    {
+        var selected = jQuery( select ).val();
+        var oauthid = '#oauth_' + eventID;
+        var basicid = '#basic_' + eventID;
+        if ( selected != '' )
+        {
+            if ( oauth[selected] )
+            {
+                jQuery( oauthid ).show();
+                jQuery( basicid ).hide();
+            }
+            else
+            {
+                jQuery( oauthid ).hide();
+                jQuery( basicid ).show();
+            }
+        }
+        else
+        {
+            jQuery( oauthid ).hide();
+            jQuery( basicid ).hide();
+        }
+    }
+{/literal}
+
     var classIdentifierAttributesArray = new Array();
     var classIdentifierAttributesArrayForTrigger = new Array();    
     {foreach $classes as $class}
@@ -82,6 +119,40 @@
 </script>
 <div class="block">
     <fieldset>
+        <legend>{'Account informations'|i18n( 'design/admin/workflow/eventtype/edit' )}</legend>
+        <p>
+            <label class="radio" for="SocialNetwork_{$event.id}">{'Social network'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
+            <select id="SocialNetwork_{$event.id}" name="SocialNetwork_{$event.id}" onchange="updateAuthForm(this, {$event.id}, socialNetworksOAuth);">
+                <option value="">{'Choose a social network'|i18n( 'design/admin/workflow/eventtype/edit' )}</option>
+            {foreach $social_networks as $network}
+                <option value="{$network.identifier}"{if $event.social_network_identifier|eq( $network.identifier )}{set $selected_social_network = $network} selected="selected"{/if}>{$network.name|wash()}</option>
+            {/foreach}
+            </select>
+        </p>
+        <p id="oauth_{$event.id}"{if or( $selected_social_network|is_object|not, $selected_social_network.require_oauth|not )} style="display:none;"{/if}>
+            {if is_object( $event.access_token )}
+                {if $event.login|eq( '' )}
+                    {'You have already requested access.'|i18n( 'design/admin/workflow/eventtype/edit', '', hash( '%login', $event.login ) )}
+                {else}
+                    {'You have already requested access with the login <strong>%login</strong>.'|i18n( 'design/admin/workflow/eventtype/edit', '', hash( '%login', $event.login ) )}
+                {/if}
+                <input type="submit" value="Manage OAuth access" name="CustomActionButton[{$event.id}_OAuthCheck]" class="button" />
+            {else}
+                {'Please click on the following button to authorize autostatus to update your status.'|i18n( 'design/admin/workflow/eventtype/edit' )}
+                <input type="submit" value="Check OAuth access" name="CustomActionButton[{$event.id}_OAuthCheck]" class="button defaultbutton" />
+            {/if}
+        </p>
+        <p id="basic_{$event.id}"{if or( $selected_social_network|is_object|not, $selected_social_network.require_oauth )} style="display:none;"{/if}>
+            <label class="radio" for="Login_{$event.id}">{'Login'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
+            <input type="text" name="Login_{$event.id}" id="Login_{$event.id}" value="{$event.login|wash}" size="20" />
+            &nbsp;&nbsp;&nbsp;
+            <label class="radio" for="Password_{$event.id}">{'Password'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
+            <input type="password" name="Password_{$event.id}" id="Password_{$event.id}" value="" size="20" />
+        </p>
+
+    </fieldset>
+    <br />
+    <fieldset>
         <legend>{'Class attribute to use for status'|i18n( 'design/admin/workflow/eventtype/edit' )}</legend>
 
         <p>
@@ -138,28 +209,7 @@
     </fieldset>
     <br />    
     
-    <fieldset>
-        <legend>{'Account informations'|i18n( 'design/admin/workflow/eventtype/edit' )}</legend>
-        <p>
-            <label class="radio" for="SocialNetwork_{$event.id}">{'Social network'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
-            <select id="SocialNetwork_{$event.id}" name="SocialNetwork_{$event.id}">
-                <option value="">{'Choose a social network'|i18n( 'design/admin/workflow/eventtype/edit' )}</option>
-            {foreach $social_networks as $network}
-                <option value="{$network.identifier}"{if $event.social_network_identifier|eq( $network.identifier )} selected="selected"{/if}>{$network.name|wash()}</option>
-            {/foreach}
-            </select>
-        </p>
 
-        <p>
-            <label class="radio" for="Login_{$event.id}">{'Login'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
-            <input type="text" name="Login_{$event.id}" id="Login_{$event.id}" value="{$event.login|wash}" size="20" />
-            &nbsp;&nbsp;&nbsp;
-            <label class="radio" for="Password_{$event.id}">{'Password'|i18n( 'design/admin/workflow/eventtype/edit' )}</label>
-            <input type="password" name="Password_{$event.id}" id="Password_{$event.id}" value="" size="20" />
-        </p>
-
-    </fieldset>
-    <br />
     <fieldset>
         <legend>{'Defer status update to cronjob'|i18n( 'design/admin/workflow/eventtype/edit' )}</legend>
         <p>

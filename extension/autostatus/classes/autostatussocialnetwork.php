@@ -25,6 +25,8 @@
 
 abstract class autostatusSocialNetwork
 {
+    const TOKEN_SESSION_VAR = 'OAUTH_TOKEN';
+
     /**
      * Indicates if include path has already been
      * updated for Zend classes loading
@@ -57,14 +59,27 @@ abstract class autostatusSocialNetwork
      * using $login and $password
      *
      * @param string $message
-     * @param string $login
-     * @param string $password
+     * @param array $options
      * @abstract
      * @access public
      * @return void
      */
-    abstract public function update($message, $login, $password);
+    abstract public function update($message, $options);
 
+    /**
+     * Returns the OAuth config for Zend_Oauth_Consumer 
+     * 
+     * @param string $callbackURI 
+     * @return array
+     */
+    abstract public function oauthConfig( $callbackURI = '' );
+
+    /**
+     * Returns true if the social network requires OAuth 
+     *
+     * @return boolean
+     */
+    abstract public function requireOauth();
 
     /**
      * Check if the attribute $name exist
@@ -86,7 +101,7 @@ abstract class autostatusSocialNetwork
      */
     public function attributes()
     {
-        return array( 'identifier', 'name' );
+        return array( 'identifier', 'name', 'require_oauth' );
     }
 
     /**
@@ -105,6 +120,10 @@ abstract class autostatusSocialNetwork
         else if ( $name === 'name' )
         {
             return $this->name;
+        }
+        else if ( $name === 'require_oauth' )
+        {
+            return $this->requireOauth();
         }
         else
         {

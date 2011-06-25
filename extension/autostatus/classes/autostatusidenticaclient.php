@@ -32,9 +32,9 @@
 class autostatusIdenticaClient extends autostatusTwitterClient
 {
 
-    public function __construct( $username, $password = null )
+    public function __construct( $options = null, Zend_Oauth_Consumer $consumer = null )
     {
-        parent::__construct( $username, $password );
+        parent::__construct( $options, $consumer );
         $this->setUri('http://identi.ca/api');
     }
 
