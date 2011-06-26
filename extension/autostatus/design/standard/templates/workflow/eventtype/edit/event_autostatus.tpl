@@ -198,7 +198,7 @@
             <optgroup label="{'Available attributes'|i18n( 'design/admin/workflow/eventtype/edit' )}">                         
                 {foreach fetch( class, attribute_list, hash( class_id, $event.class_id ) ) as $attribute}
                     {if $allowed_datatypes|contains( $attribute.data_type_string )}
-                <option value="{$attribute.identifier}"{if $attribute.id|eq( $event.attribute_id )} selected="selected"{/if}>{$attribute.name|wash}</option>
+                <option value="{$attribute.identifier}"{if $attribute.id|eq( $event.trigger_attribute_id )} selected="selected"{/if}>{$attribute.name|wash}</option>
                     {/if}
                 {/foreach}
             </optgroup>                
