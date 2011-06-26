@@ -5,8 +5,7 @@
  *
  */
 
-require_once 'kernel/common/template.php';
-$tpl = templateInit();
+$tpl = eZTemplate::factory();
 $ini = eZINI::instance( 'autostatus.ini' );
 
 $Offset = 0;
