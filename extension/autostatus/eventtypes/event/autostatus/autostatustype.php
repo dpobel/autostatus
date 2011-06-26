@@ -389,7 +389,7 @@ class autostatusType extends eZWorkflowEventType
         {
             if ( $event->attribute( 'use_cronjob' ) && !isset( $parameters['in_cronjob'] ) )
             {
-                $message = self::substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object );
+                $message = self::substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event, $socialNetwork );
                 $parameters['in_cronjob'] = true;
                 $parameters['message'] = $message;
                 $process->setParameters( $parameters );
