@@ -1,4 +1,5 @@
 - Rewrite JavaScript code in event_autostatus.tpl
 - Load with AJAX the OAuth token/credential part
 - Fix URL building with PathPrefix
+- Finish log system and implement Retry button when possible
 - Add an option in the workflow to update the status when the object is first published only
