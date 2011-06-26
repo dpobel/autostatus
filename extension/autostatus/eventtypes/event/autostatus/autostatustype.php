@@ -476,7 +476,12 @@ class autostatusType extends eZWorkflowEventType
             }
 
             $node = $contentObject->attribute( 'main_node' );
+            $currentSA = eZSiteAccess::current();
+            eZSiteAccess::load( array( 'name' => $event->attribute( 'siteaccess' ),
+                                       'type' => eZSiteAccess::TYPE_STATIC,
+                                       'uri_part' => array() ) );
             $nodeURL = $node->attribute( 'url_alias' );
+            eZSiteAccess::load( $currentSA );
             eZURI::transformURI( $nodeURL, false, 'full' );
 
             if ( $alterUrl and $hostAccess )
