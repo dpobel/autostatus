@@ -225,7 +225,7 @@
             <select id="Siteaccess_{$event.id}" name="Siteaccess_{$event.id}">
                 <option value="-1">{'Current one'|i18n( 'design/admin/workflow/eventtype/edit' )}</option>
                 {foreach ezini( 'SiteAccessSettings', 'RelatedSiteAccessList' ) as $siteaccess}
-                    <option value="{$siteaccess}">{$siteaccess}</option>    
+                    <option value="{$siteaccess|wash}"{if $event.siteaccess|eq( $siteaccess )} selected="selected"{/if}>{$siteaccess|wash}</option>    
                 {/foreach}
             </select>            
         </p>
