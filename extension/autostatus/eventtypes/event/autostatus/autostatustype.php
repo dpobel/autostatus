@@ -48,7 +48,7 @@ class autostatusType extends eZWorkflowEventType
     function __construct()
     {
         parent::__construct( autostatusType::WORKFLOW_TYPE_STRING,
-                             ezi18n( 'kernel/workflow/event', 'Auto status' ) );
+                             ezpI18n::tr( 'kernel/workflow/event', 'Auto status' ) );
         $this->setTriggerTypes( array( 'content' => array( 'publish' => array( 'after' ) ) ) );
     }
 
@@ -162,7 +162,7 @@ class autostatusType extends eZWorkflowEventType
                 || !is_numeric( eZContentClass::classIDByIdentifier( $http->postVariable( $classIdentifierPostName ) ) ) )
         {
             $finalState = eZInputValidator::STATE_INVALID;
-            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Invalid content class' ) );
+            $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'Invalid content class' ) );
         }
         else
         {
@@ -173,7 +173,7 @@ class autostatusType extends eZWorkflowEventType
                                                                                        . '/' . $http->postVariable( $attributeIdentifierPostName ) ) ) )
         {
             $finalState = eZInputValidator::STATE_INVALID;
-            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Invalid attribute' ) );
+            $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'Invalid attribute' ) );
         }
         else
         {
@@ -183,7 +183,7 @@ class autostatusType extends eZWorkflowEventType
         if ( !$http->hasPostVariable( $attributeIdentifierForTriggeringPostName ) )
         {
             $finalState = eZInputValidator::STATE_INVALID;
-            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Invalid way of triggering the udpate (none actually)' ) );
+            $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'Invalid way of triggering the udpate (none actually)' ) );
         }
         else
         {
@@ -200,7 +200,7 @@ class autostatusType extends eZWorkflowEventType
         if ( !$http->hasPostVariable( $socialNetworkPostName ) )
         {
             $finalState = eZInputValidator::STATE_INVALID;
-            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'You need to choose a social network' ) );
+            $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'You need to choose a social network' ) );
         }
         else
         {
@@ -212,7 +212,7 @@ class autostatusType extends eZWorkflowEventType
             else
             {
                 $finalState = eZInputValidator::STATE_INVALID;
-                $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Invalid social network' ) );
+                $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'Invalid social network' ) );
             }
         }
 
@@ -222,7 +222,7 @@ class autostatusType extends eZWorkflowEventType
                     || $http->postVariable( $loginPostName ) == '' )
             {
                 $finalState = eZInputValidator::STATE_INVALID;
-                $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Login cannot be empty' ) );
+                $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'Login cannot be empty' ) );
             }
             else
             {
@@ -232,7 +232,7 @@ class autostatusType extends eZWorkflowEventType
                     || $http->postVariable( $passwordPostName ) == '' )
             {
                 $finalState = eZInputValidator::STATE_INVALID;
-                $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'Password cannot be empty' ) );
+                $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'Password cannot be empty' ) );
             }
             else
             {
@@ -249,7 +249,7 @@ class autostatusType extends eZWorkflowEventType
             }
             else
             {
-                $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'You have check your OAuth access' ) );
+                $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'You have check your OAuth access' ) );
             }
         }
 
@@ -257,7 +257,7 @@ class autostatusType extends eZWorkflowEventType
                 || $http->postVariable( $siteaccessPostName ) == '' )
         {
             $finalState = eZInputValidator::STATE_INVALID;
-            $validation['groups'][] = array( 'text' => $prefix . ezi18n( 'kernel/workflow/event', 'No values given for siteaccess' ) );
+            $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'No values given for siteaccess' ) );
         }
         else
         {

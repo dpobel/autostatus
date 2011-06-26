@@ -28,7 +28,7 @@ $tpl->setVariable( 'limit', $limit );
 $tpl->setVariable( 'page_uri', $pageURI );
 
 $Result['path'] = array();
-$Result['path'][] = array( 'text' => ezi18n( 'autostatus/log', 'Auto status log' ),
+$Result['path'][] = array( 'text' => ezpI18n::tr( 'autostatus/log', 'Auto status log' ),
                            'url'  => $pageURI );
 $Result['left_menu'] = 'design:autostatus/menu.tpl';
 $Result['content'] = $tpl->fetch( 'design:autostatus/log.tpl' );
