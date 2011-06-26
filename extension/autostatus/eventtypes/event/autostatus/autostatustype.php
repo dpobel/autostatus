@@ -243,13 +243,18 @@ class autostatusType extends eZWorkflowEventType
         {
             $event->setAttribute( 'data_text3', '' );
             $token = $event->attribute( 'access_token' );
-            if ( $token instanceof Zend_Oauth_Token_Access )
+            if ( $token instanceof Zend_Oauth_Token_Access && $token->social_network === $socialNetwork->attribute( 'identifier' ) )
             {
                 $event->setAttribute( 'data_text2', $token->screen_name );
             }
+            else if ( $token instanceof Zend_Oauth_Token_Access && $token->social_network !== $socialNetwork->attribute( 'identifier' ) )
+            {
+                $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'The OAuth access token does not correspond to the selected social network' ) );
+                $finalState = eZInputValidator::STATE_INVALID;
+            }
             else
             {
-                $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'You have check your OAuth access' ) );
+                $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'You have to check your OAuth access' ) );
                 $finalState = eZInputValidator::STATE_INVALID;
             }
         }

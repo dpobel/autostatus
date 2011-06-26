@@ -45,6 +45,7 @@ try
     $consumer = new Zend_Oauth_Consumer( $config );
 
     $token = $consumer->getAccessToken( $_GET, unserialize( $http->sessionVariable(autostatusSocialNetwork::TOKEN_SESSION_VAR ) ) );
+    $token->social_network = $network->attribute( 'identifier' );
     eZDebug::writeDebug( $token );
     $http->setSessionVariable( autostatusSocialNetwork::TOKEN_SESSION_VAR, null );
 
