@@ -2,3 +2,4 @@
 - Load with AJAX the OAuth token/credential part
 - Fix selected value in event_autostatus.tpl form (siteaccess, trigger attribute)
 - Fix URL building with PathPrefix
+- Add an option in the workflow to update the status when the object is first published only
