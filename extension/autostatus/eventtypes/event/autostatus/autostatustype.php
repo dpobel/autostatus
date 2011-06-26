@@ -243,13 +243,14 @@ class autostatusType extends eZWorkflowEventType
         {
             $event->setAttribute( 'data_text3', '' );
             $token = $event->attribute( 'access_token' );
-            if ( is_object( $token ) )
+            if ( $token instanceof Zend_Oauth_Token_Access )
             {
                 $event->setAttribute( 'data_text2', $token->screen_name );
             }
             else
             {
                 $validation['groups'][] = array( 'text' => $prefix . ezpI18n::tr( 'kernel/workflow/event', 'You have check your OAuth access' ) );
+                $finalState = eZInputValidator::STATE_INVALID;
             }
         }
 
