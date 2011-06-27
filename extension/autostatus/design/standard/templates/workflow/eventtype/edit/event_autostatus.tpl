@@ -53,6 +53,10 @@
         $('#SocialNetwork_' + eventID).change(function() {
             var url = 'autostatus::auth::' + $(this).val() + '::' + eventID;
             var p = $('#auth_' + eventID);
+            if ( $(this).val() === '' ) {
+                p.html('');
+                return;
+            }
             p.html('');
             p.addClass('waiting');
             $.ez(url, false, function(data) {

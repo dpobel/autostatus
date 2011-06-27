@@ -47,7 +47,7 @@ class autostatusAjaxFunctions extends ezjscServerFunctions
             eZDebug::writeError( 'Unable to load the social network', __METHOD__ );
             return '';
         }
-        $event = eZWorkflowEvent::fetch( $eventID );
+        $event = eZWorkflowEvent::fetch( $eventID, true, 1 );
         if ( !$event instanceof eZWorkflowEvent )
         {
             eZDebug::writeError( 'Unable to load the workflow event', __METHOD__ );
