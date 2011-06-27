@@ -1,0 +1,8 @@
+.waiting
+{
+background:url(../images/loader.gif) no-repeat center 0;
+}
+.auth
+{
+min-height:20px;
+}

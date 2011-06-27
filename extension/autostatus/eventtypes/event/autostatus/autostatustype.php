@@ -125,6 +125,15 @@ class autostatusType extends eZWorkflowEventType
                 autostatusSocialNetwork::fixIncludePath();
                 return unserialize( $event->attribute( 'data_text5' ) );
             }
+            case 'access_token_network_identifier':
+            {
+                $token = $event->attribute( 'access_token' );
+                if ( $token instanceof Zend_Oauth_Token_Access )
+                {
+                    return $token->social_network;
+                }
+                return '';
+            }
         }
         return null;
     }
@@ -135,7 +144,7 @@ class autostatusType extends eZWorkflowEventType
                       'class', 'attribute', 'use_cronjob',
                       'trigger_attribute_id', 'trigger_attribute_identifier', 'trigger_attribute',
                       'social_network_identifier', 'social_network', 'login', 'password',
-                      'siteaccess', 'access_token' );
+                      'siteaccess', 'access_token', 'access_token_network_identifier' );
     }
 
 
