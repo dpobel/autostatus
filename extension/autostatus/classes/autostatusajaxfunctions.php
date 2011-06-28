@@ -59,6 +59,96 @@ class autostatusAjaxFunctions extends ezjscServerFunctions
         return $tpl->fetch( 'design:autostatus/ajax/auth.tpl' );
     }
 
+
+    /**
+     * Tries to update again the status and returns the line to be displayed in 
+     * the log view 
+     * 
+     * @param array $args array( 0 => statusEventID )
+     * @access public
+     * @return array( 'html' => string, 'class' => string );
+     */
+    static function retry( $args )
+    {
+        if ( !isset( $args[0] ) )
+        {
+            eZDebug::writeError( 'Invalid parameters', __METHOD__ );
+            return '';
+        }
+        $statusEventID = (int) $args[0];
+        $status = statusUpdateEvent::fetch( $statusEventID );
+        $event = $status->attribute( 'event' );
+        if ( !$event instanceof eZWorkflowEvent )
+        {
+            eZDebug::writeError( 'The workflow event does not exist anymore', __METHOD__ );
+            return '';
+        }
+        $network = $event->attribute( 'social_network' );
+        if ( !$network instanceof autostatusSocialNetwork )
+        {
+            eZDebug::writeError( 'The social network does not exist anymore', __METHOD__ );
+            return '';
+        }
+        $status = self::retryAndUpdateStatus( $event, $network, $status );
+        $tpl = eZTemplate::factory();
+        $tpl->setVariable( 'event', $status );
+        $result = array();
+        $result['html'] = $tpl->fetch( 'design:autostatus/event.tpl' );
+        $result['class'] = $status->attribute( 'status_text' );
+        return $result;
+    }
+
+
+    /**
+     * Update the status in $socialNetwork like previously logged in $status 
+     * 
+     * @param eZWorkflowEvent $event 
+     * @param autostatusSocialNetwork $socialNetwork 
+     * @param statusUpdateEvent $status 
+     * @return statusUpdateEvent
+     */
+    private static function retryAndUpdateStatus( eZWorkflowEvent $event, autostatusSocialNetwork $socialNetwork, statusUpdateEvent $status )
+    {
+        autostatusSocialNetwork::fixIncludePath();
+        $options = $event->attribute( 'workflow_type' )->getUpdateOptions( $event, $socialNetwork );
+        $errorMsg = false;
+        $r = statusUpdateEvent::NORMAL;
+        $message = $status->attribute( 'message' );
+        try
+        {
+            $ini = eZINI::instance( 'autostatus.ini' );
+            if ( $ini->variable( 'AutoStatusSettings', 'Debug' ) === 'disabled' )
+            {
+                $result = $socialNetwork->update( $message, $options );
+                if ( $result->isError() )
+                {
+                    $errorMsg = $result->error;
+                    $r = statusUpdateEvent::ERROR;
+                }
+            }
+            else
+            {
+                $logFile = $ini->variable( 'AutoStatusSettings', 'LogFile' );
+                $logMsg = '[DEBUG] status=' . $message . ' with ' . $login
+                    . '@' . $event->attribute( 'social_network_identifier' );
+                eZLog::write( $logMsg, $logFile );
+            }
+        }
+        catch( Exception $e )
+        {
+            $errorMsg = $e->getMessage();
+            $r = statusUpdateEvent::EXCEPTION;
+            eZDebug::writeError( 'An error occured when updating status in '
+                    . $socialNetwork->attribute( 'name' ) . ' : '
+                    . $e->getMessage(), 'Auto status workflow' );
+        }
+        $status->setAttribute( 'status', $r );
+        $status->setAttribute( 'error_msg', $errorMsg );
+        $status->store();
+        return $status;
+    }
+
+
 }
 
 

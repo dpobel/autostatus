@@ -32,12 +32,21 @@
  */
 class statusUpdateEvent extends eZPersistentObject
 {
+    const NORMAL    = 0;
+    const EXCEPTION = 1;
+    const ERROR     = 2;
+
+    static $statusText = array( self::NORMAL => 'normal',
+                                self::EXCEPTION => 'exception',
+                                self::ERROR => 'error' );
+
     protected $ID;
     protected $WorkflowEventID;
     protected $StatusMessage;
     protected $Created;
     protected $Modified;
     protected $ErrorMessage;
+    protected $Status;
 
     static function definition()
     {
@@ -61,6 +70,10 @@ class statusUpdateEvent extends eZPersistentObject
                                                                             'datatype' => 'integer',
                                                                             'default' => 0,
                                                                             'required' => true ),
+                                                       'status' => array( 'name' => 'Status',
+                                                                          'datatype' => 'integer',
+                                                                          'default' => 0,
+                                                                          'required' => true ),
                                                        'error_msg' => array( 'name' => 'ErrorMessage',
                                                                              'datatype' => 'string',
                                                                              'default' => '',
@@ -68,6 +81,7 @@ class statusUpdateEvent extends eZPersistentObject
                                     'keys' => array( 'id' ),
                                     'increment_key' => 'id',
                                     'function_attributes' => array( 'event' => 'fetchEvent',
+                                                                    'status_text' => 'statusText',
                                                                     'is_error' => 'isError' ),
                                     'class_name' => 'statusUpdateEvent',
                                     'name' => 'statusupdateevent' );
@@ -85,24 +99,39 @@ class statusUpdateEvent extends eZPersistentObject
         return ( $this->attribute( 'error_msg' ) !== '' );
     }
 
+    function statusText()
+    {
+        return self::$statusText[$this->Status];
+    }
+
     /**
      * Create an statusUpdateEvent instance 
      * 
      * @param int $eventID workflow event id
      * @param string $message message used to update status
      * @param string $errorMsg error message
+     * @param int $status status code
      * @static
      * @access public
      * @return statusUpdateEvent
      */
-    static function create( $eventID, $message, $errorMsg )
+    static function create( $eventID, $message, $errorMsg, $status )
     {
         $row = array( 'event_id' => $eventID,
                       'created' => time(),
                       'modified' => time(),
                       'message' => $message,
-                      'error_msg' => (string) $errorMsg );
+                      'error_msg' => (string) $errorMsg,
+                      'status' => $status );
         return new statusUpdateEvent( $row );
+    }
+
+    static function fetch( $id )
+    {
+        return eZPersistentObject::fetchObject( self::definition(),
+                                                null,
+                                                array( 'id' => $id ),
+                                                true );
     }
 
     static function fetchList( $offset, $limit )
@@ -120,6 +149,15 @@ class statusUpdateEvent extends eZPersistentObject
     static function fetchListCount()
     {
         return eZPersistentObject::count( self::definition() );
+    }
+
+    function store( $fieldFilters = null )
+    {
+        if ( $this->ID )
+        {
+            $this->Modified = time();
+        }
+        parent::store( $fieldFilters );
     }
 
 }

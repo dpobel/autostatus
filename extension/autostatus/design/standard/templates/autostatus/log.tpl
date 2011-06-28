@@ -2,11 +2,31 @@
  * $Id$
  * $HeadURL$
  *}
-
+{ezscript_require( 'ezjsc::jquery', 'ezjsc:jqueryio' )}
+<script type="text/javascript">
+{literal}
+$(document).ready(function() {
+    $('.retry-button').live( 'click', function(evt) {
+        var eventID = $(this).attr('name').replace('Retry_', '');
+        var tr = $('#event_' + eventID);
+        var cellsCount = tr.children('td').length;
+        var url = 'autostatus::retry::' + eventID;
+        tr.removeClass('exception');
+        tr.removeClass('error');
+        tr.html('<td class="waiting" colspan="' + cellsCount + '"></td>');
+        $.ez(url, false, function(data) {
+            tr.html(data.content.html);
+            tr.addClass(data.content.class);
+        });
+        evt.preventDefault();
+    });
+});
+{/literal}
+</script>
 <div class="context-block">
 
 <div class="box-header"><div class="box-tc"><div class="box-ml"><div class="box-mr"><div class="box-tl"><div class="box-tr">
-<h2 class="context-title">{'%count events'|i18n( 'autostatus/log', , hash( '%count', $events_count ) )}</h2>
+<h1 class="context-title">{'%count events'|i18n( 'autostatus/log', , hash( '%count', $events_count ) )}</h1>
 <div class="header-subline"></div>
 </div></div></div></div></div></div>
 
@@ -25,18 +45,9 @@
     <th class="edit">&nbsp;</th>
 </tr>
 {foreach $events as $event sequence array( 'bgdark', 'bglight' ) as $style}
-<tr class="{$style}{cond( $event.is_error, ' error_event', '' )}">
-    <td>{$event.event.login|wash}@{$event.event.social_network.name|wash}</td>
-    <td>{$event.message|wash}</td>
-    <td>{$event.created|l10n( 'shortdatetime' )}</td>
-    <td>{$event.modified|l10n( 'shortdatetime' )}</td>
-    <td>{$event.error_msg|wash}</td>
-    <td style="text-align:center;">
-    {if $event.is_error}
-        <input type="submit" class="button retry-button" name="Retry_{$event.id}" value="{'Retry'|i18n( 'autostatus/log' )}" />
-    {/if}
-    </td>
-</tr>
+    <tr class="{$style} {$event.status_text}" id="event_{$event.id}">
+    {include uri="design:autostatus/event.tpl" event=$event}
+    </tr>
 {/foreach}
 </tbody>
 </table>

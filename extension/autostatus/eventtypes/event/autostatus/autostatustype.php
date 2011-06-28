@@ -348,6 +348,29 @@ class autostatusType extends eZWorkflowEventType
         }
     }
 
+    /**
+     * Return the array needed by autostatusSocialNetwork::update() to 
+     * identify the user in $socialNetwork
+     *
+     * @param eZWorkflowEvent $event 
+     * @param autostatusSocialNetwork $socialNetwork 
+     * @access public
+     * @return array
+     */
+    function getUpdateOptions( eZWorkflowEvent $event, autostatusSocialNetwork $socialNetwork )
+    {
+        $options = array();
+        if ( $socialNetwork->attribute( 'require_oauth' ) )
+        {
+            $options['token'] = $event->attribute( 'access_token' );
+        }
+        else
+        {
+            $options['login'] = $event->attribute( 'login' );
+            $options['password'] = $event->attribute( 'password' );
+        }
+        return $options;
+    }
 
     function execute( $process, $event )
     {
@@ -415,17 +438,9 @@ class autostatusType extends eZWorkflowEventType
             }
             eZDebug::writeDebug( $message, __METHOD__ );
 
-            $options = array();
-            if ( $socialNetwork->attribute( 'require_oauth' ) )
-            {
-                $options['token'] = $event->attribute( 'access_token' );
-            }
-            else
-            {
-                $options['login'] = $event->attribute( 'login' );
-                $options['password'] = $event->attribute( 'password' );
-            }
+            $options = $this->getUpdateOptions( $event, $socialNetwork );
             $errorMsg = false;
+            $status = statusUpdateEvent::NORMAL;
             try
             {
                 $ini = eZINI::instance( 'autostatus.ini' );
@@ -435,6 +450,7 @@ class autostatusType extends eZWorkflowEventType
                     if ( $result->isError() )
                     {
                         $errorMsg = $result->error;
+                        $status = statusUpdateEvent::ERROR;
                     }
                 }
                 else
@@ -448,11 +464,12 @@ class autostatusType extends eZWorkflowEventType
             catch( Exception $e )
             {
                 $errorMsg = $e->getMessage();
+                $status = statusUpdateEvent::EXCEPTION;
                 eZDebug::writeError( 'An error occured when updating status in '
                                      . $socialNetwork->attribute( 'name' ) . ' : '
                                      . $e->getMessage(), 'Auto status workflow' );
             }
-            $statusEvent = statusUpdateEvent::create( $event->attribute( 'id' ), $message, $errorMsg );
+            $statusEvent = statusUpdateEvent::create( $event->attribute( 'id' ), $message, $errorMsg, $status );
             $statusEvent->store();
         }
         return eZWorkflowEventType::STATUS_ACCEPTED;
