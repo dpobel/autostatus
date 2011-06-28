@@ -1,3 +1,11 @@
-- Finish log system and implement Retry button when possible
+Next release
+============
+- Filter (status) in autostatus/log (left menu)
+- Improve display
+- Cleaning cronjob script
+
+Future
+======
+- Improve form field use to enter a status
 - URL Shortening
 - Add an option in the workflow to update the status when the object is first published only
