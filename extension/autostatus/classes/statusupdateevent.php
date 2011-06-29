@@ -134,11 +134,11 @@ class statusUpdateEvent extends eZPersistentObject
                                                 true );
     }
 
-    static function fetchList( $offset, $limit )
+    static function fetchList( $conditions, $offset, $limit )
     {
         $result = eZPersistentObject::fetchObjectList( self::definition(),
                                                        null, // field filters
-                                                       null, // conditions
+                                                       $conditions,
                                                        array( 'modified' => 'desc' ),
                                                        array( 'limit' => $limit, 'offset' => $offset ),
                                                        true );
@@ -146,9 +146,9 @@ class statusUpdateEvent extends eZPersistentObject
         return $result;
     }
 
-    static function fetchListCount()
+    static function fetchListCount( $conditions = array() )
     {
-        return eZPersistentObject::count( self::definition() );
+        return eZPersistentObject::count( self::definition(), $conditions );
     }
 
     function store( $fieldFilters = null )
