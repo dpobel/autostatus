@@ -24,5 +24,6 @@ Shown[]
 Shown[navigation]=true
 Shown[default]=true
 Shown[browse]=true
+PolicyList[]=autostatus/log
 
 */ ?>
