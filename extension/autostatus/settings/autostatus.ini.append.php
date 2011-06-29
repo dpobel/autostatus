@@ -46,4 +46,10 @@ LogFile=autostatus.log
 [AutoStatusLogSettings]
 Limit=20
 
+# Maximum age (in days) of events in autostatus/log
+# Events older than MaxAge will be removed by the cronjobs
+# clean_events.php that should be launched in the infrequent
+# cronjob part.
+MaxAge=2
+
 */ ?>
