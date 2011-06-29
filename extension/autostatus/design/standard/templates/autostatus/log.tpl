@@ -32,7 +32,11 @@ $(document).ready(function() {
 
 <div class="box-ml"><div class="box-mr"><div class="box-content">
 
-
+{if $events_count|eq( 0 )}
+    <div class="message-feedback">
+        <h2>{'No update status event'|i18n( 'autostatus/log' )}</h2>
+    </div>
+{else}
 <div class="content-navigation-childlist">
 <table class="list" cellspacing="0">
 <tbody>
@@ -59,23 +63,9 @@ $(document).ready(function() {
                         view_parameters=hash( 'offset', $offset )
                         item_limit=$limit}
 </div><!-- context-toolbar -->
+</div>
+{/if}
+
 </div></div></div>
 
-
-
-<div class="controlbar">
-    <div class="box-bc"><div class="box-ml"><div class="box-mr"><div class="box-tc"><div class="box-bl"><div class="box-br">
-    <div class="block">
-        <div class="left">
-
-        </div>
-        <div class="right">
-
-        </div>
-        <div class="break"></div>
-    </div>
-    </div></div></div></div></div></div>
-</div>
-
-
-</div>
+</div><!-- context-block -->
