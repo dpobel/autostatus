@@ -19,6 +19,7 @@ $(document).ready(function() {
             tr.addClass(data.content.class);
         });
         evt.preventDefault();
+        return false;
     });
 });
 {/literal}
