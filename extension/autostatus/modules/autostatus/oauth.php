@@ -62,7 +62,7 @@ catch( Exception $e )
 }
 
 $editWorkflowURI = 'workflow/edit/' . $workflowEvent->attribute( 'workflow_id' );
-eZURI::transformURI( $editWorkflowURI );
+eZURI::transformURI( $editWorkflowURI, false, 'full' );
 $Module->setExitStatus( eZModule::STATUS_REDIRECT );
 $Module->setRedirectURI( $editWorkflowURI );
 ?>
