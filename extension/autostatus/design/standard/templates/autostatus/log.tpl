@@ -27,7 +27,7 @@ $(document).ready(function() {
 
 <div class="box-header"><div class="box-tc"><div class="box-ml"><div class="box-mr"><div class="box-tl"><div class="box-tr">
 {if $display_type|eq( 'succeed' )}
-    <h1 class="context-title">{'%count succeed events (Total %count_total)'|i18n( 'autostatus/log', , hash( '%count', $events_count, '%count_total', $total_count ) )}</h1>
+    <h1 class="context-title">{'%count successful events (Total %count_total)'|i18n( 'autostatus/log', , hash( '%count', $events_count, '%count_total', $total_count ) )}</h1>
 {elseif $display_type|eq( 'error' )}
     <h1 class="context-title">{'%count error events (Total %count_total)'|i18n( 'autostatus/log', , hash( '%count', $events_count, '%count_total', $total_count ) )}</h1>
 {else}
