@@ -6,7 +6,7 @@
 <script type="text/javascript">
 {literal}
 $(document).ready(function() {
-    $('.retry-button').live( 'click', function(evt) {
+    $('.retry-button input').live( 'click', function(evt) {
         var eventID = $(this).attr('name').replace('Retry_', '');
         var tr = $('#event_' + eventID);
         var cellsCount = tr.children('td').length;
@@ -19,7 +19,6 @@ $(document).ready(function() {
             tr.addClass(data.content.class);
         });
         evt.preventDefault();
-        return false;
     });
 });
 {/literal}
