@@ -144,6 +144,7 @@ class autostatusAjaxFunctions extends ezjscServerFunctions
         }
         $status->setAttribute( 'status', $r );
         $status->setAttribute( 'error_msg', $errorMsg );
+        $status->setAttribute( 'user_id', eZUser::currentUserID();
         $status->store();
         return $status;
     }

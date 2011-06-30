@@ -469,7 +469,10 @@ class autostatusType extends eZWorkflowEventType
                                      . $socialNetwork->attribute( 'name' ) . ' : '
                                      . $e->getMessage(), 'Auto status workflow' );
             }
-            $statusEvent = statusUpdateEvent::create( $event->attribute( 'id' ), $message, $errorMsg, $status );
+            $statusEvent = statusUpdateEvent::create(
+                $event->attribute( 'id' ), $message, $errorMsg, $status,
+                $parameters['user_id'], $parameters['contentobject_id']
+            );
             $statusEvent->store();
         }
         return eZWorkflowEventType::STATUS_ACCEPTED;

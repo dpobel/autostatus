@@ -48,7 +48,9 @@ $(document).ready(function() {
 <tbody>
 <tr>
     <th>{'Social network'|i18n( 'autostatus/log' )}</th>
-    <th>{'Status to send'|i18n( 'autostatus/log' )}</th>
+    <th>{'Status message'|i18n( 'autostatus/log' )}</th>
+    <th>{'Content'|i18n( 'autostatus/log' )}</th>
+    <th>{'Author'|i18n( 'autostatus/log' )}</td>
     <th class="modified">{'Created'|i18n( 'autostatus/log' )}</th>
     <th class="modified">{'Modified'|i18n( 'autostatus/log' )}</th>
     <th>{'Error message'|i18n( 'autostatus/log' )}</th>

@@ -42,6 +42,8 @@ class statusUpdateEvent extends eZPersistentObject
 
     protected $ID;
     protected $WorkflowEventID;
+    protected $UserID;
+    protected $ContentObjectID;
     protected $StatusMessage;
     protected $Created;
     protected $Modified;
@@ -58,6 +60,14 @@ class statusUpdateEvent extends eZPersistentObject
                                                                             'datatype' => 'integer',
                                                                             'default' => 0,
                                                                             'required' => true ),
+                                                       'user_id' => array( 'name' => 'UserID',
+                                                                           'datatype' => 'integer',
+                                                                           'default' => 0,
+                                                                           'required' => true ),
+                                                       'contentobject_id' => array( 'name' => 'ContentObjectID',
+                                                                                    'datatype' => 'integer',
+                                                                                    'default' => 0,
+                                                                                    'required' => true ),
                                                        'message' => array( 'name' => 'StatusMessage',
                                                                            'datatype' => 'string',
                                                                            'default' => '',
@@ -81,11 +91,23 @@ class statusUpdateEvent extends eZPersistentObject
                                     'keys' => array( 'id' ),
                                     'increment_key' => 'id',
                                     'function_attributes' => array( 'event' => 'fetchEvent',
+                                                                    'user' => 'fetchUser',
+                                                                    'object' => 'fetchContentObject',
                                                                     'status_text' => 'statusText',
                                                                     'is_error' => 'isError' ),
                                     'class_name' => 'statusUpdateEvent',
                                     'name' => 'statusupdateevent' );
         return $definition;
+    }
+
+    function fetchUser()
+    {
+        return eZUser::fetch( $this->UserID );
+    }
+
+    function fetchContentObject()
+    {
+        return eZContentObject::fetch( $this->ContentObjectID );
     }
 
     function fetchEvent()
@@ -96,7 +118,7 @@ class statusUpdateEvent extends eZPersistentObject
 
     function isError()
     {
-        return ( $this->attribute( 'error_msg' ) !== '' );
+        return ( $this->Status !== self::NORMAL );
     }
 
     function statusText()
@@ -111,18 +133,22 @@ class statusUpdateEvent extends eZPersistentObject
      * @param string $message message used to update status
      * @param string $errorMsg error message
      * @param int $status status code
+     * @param int $userID user id that sends the update
+     * @param int $contentObjectID content object id
      * @static
      * @access public
      * @return statusUpdateEvent
      */
-    static function create( $eventID, $message, $errorMsg, $status )
+    static function create( $eventID, $message, $errorMsg, $status, $userID, $contentObjectID )
     {
         $row = array( 'event_id' => $eventID,
                       'created' => time(),
                       'modified' => time(),
                       'message' => $message,
                       'error_msg' => (string) $errorMsg,
-                      'status' => $status );
+                      'status' => $status,
+                      'user_id' => $userID,
+                      'contentobject_id' => $contentObjectID );
         return new statusUpdateEvent( $row );
     }
 
