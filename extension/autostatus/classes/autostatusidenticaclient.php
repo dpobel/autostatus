@@ -31,11 +31,39 @@
  */
 class autostatusIdenticaClient extends autostatusTwitterClient
 {
+    const OAUTH_BASE_URI = 'https://identi.ca/api/oauth';
 
+    /**
+     * Copy paste from Zend_Service_Twitter::__construct() to customize some 
+     * hardcoded parameters
+     */
     public function __construct( $options = null, Zend_Oauth_Consumer $consumer = null )
     {
-        parent::__construct( $options, $consumer );
-        $this->setUri('http://identi.ca/api');
+        $this->setUri('https://identi.ca/api');
+        if ($options instanceof Zend_Config) {
+            $options = $options->toArray();
+        }
+
+        if (!is_array($options)) {
+            $options = array();
+        }
+        $options['siteUrl'] = self::OAUTH_BASE_URI;
+
+        $this->_options = $options;
+        if (isset($options['username'])) {
+            $this->setUsername($options['username']);
+        }
+        if (isset($options['accessToken'])
+        && $options['accessToken'] instanceof Zend_Oauth_Token_Access) {
+            $this->setLocalHttpClient($options['accessToken']->getHttpClient($options));
+        } else {
+            $this->setLocalHttpClient(clone self::getHttpClient());
+            if ($consumer === null) {
+                $this->_oauthConsumer = new Zend_Oauth_Consumer($options);
+            } else {
+                $this->_oauthConsumer = $consumer;
+            }
+        }
     }
 
 
@@ -68,6 +96,36 @@ class autostatusIdenticaClient extends autostatusTwitterClient
          * because the Zend_Http_Client instance is shared among all Zend_Service_Abstract subclasses.
          */
         $this->_localHttpClient->resetParameters()->setUri( $this->_uri );
+    }
+
+    /**
+     * Copy paste from Zend_Service_Twitter::statusUpdate() to customize the 
+     * hardcoded $path variable for Identi.ca
+     */
+    public function statusUpdate($status, $inReplyToStatusId = null)
+    {
+        $this->_init();
+        $path = '/statuses/update.xml';
+        $len = iconv_strlen(htmlspecialchars($status, ENT_QUOTES, 'UTF-8'), 'UTF-8');
+        if ($len > self::STATUS_MAX_CHARACTERS) {
+            include_once 'Zend/Service/Twitter/Exception.php';
+            throw new Zend_Service_Twitter_Exception(
+                'Status must be no more than '
+                . self::STATUS_MAX_CHARACTERS
+                . ' characters in length'
+            );
+        } elseif (0 == $len) {
+            include_once 'Zend/Service/Twitter/Exception.php';
+            throw new Zend_Service_Twitter_Exception(
+                'Status must contain at least one character'
+            );
+        }
+        $data = array('status' => $status);
+        if (is_numeric($inReplyToStatusId) && !empty($inReplyToStatusId)) {
+            $data['in_reply_to_status_id'] = $inReplyToStatusId;
+        }
+        $response = $this->_post($path, $data);
+        return new Zend_Rest_Client_Result($response->getBody());
     }
 
 }

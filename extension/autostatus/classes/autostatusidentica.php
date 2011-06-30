@@ -36,12 +36,10 @@ class autostatusIdentica extends autostatusSocialNetwork
     public function update( $message, $options )
     {
         $token = $options['token'];
-        $client = new autostatusTwitterClient(
-            array(
-                'username' => '',
-                'accessToken' => $token
-            )
-        );
+        $opt = $this->oauthConfig();
+        $opt['username'] = '';
+        $opt['accessToken'] = $token;
+        $client = new autostatusIdenticaClient( $opt );
         $response = $client->statusUpdate( $message );
         return $response;
     }

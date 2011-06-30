@@ -471,7 +471,7 @@ class autostatusType extends eZWorkflowEventType
             }
             $statusEvent = statusUpdateEvent::create(
                 $event->attribute( 'id' ), $message, $errorMsg, $status,
-                $parameters['user_id'], $parameters['contentobject_id']
+                $parameters['user_id'], $parameters['object_id']
             );
             $statusEvent->store();
         }
