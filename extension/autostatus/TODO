@@ -1,3 +1,10 @@
+Before next release
+===================
+- Check identi.ca
+- Improve wording (edit event, view event, log)
+- Translations (untranslated + fre-FR)
+
+
 Undecided
 =========
 - Linkedin status update support
@@ -7,6 +14,8 @@ Undecided
 
 Future
 ======
-- Improve form field use to enter a status
+- Improve form field used to enter a status
 - URL Shortening
 - Add an option in the workflow to update the status when the object is first published only
+- On autostatus/log, ability edit the message before Retry/Send
+- Send an update without updating a content
