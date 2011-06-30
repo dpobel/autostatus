@@ -50,6 +50,6 @@ Limit=20
 # Events older than MaxAge will be removed by the cronjobs
 # clean_events.php that should be launched in the infrequent
 # cronjob part.
-MaxAge=2
+MaxAge=100
 
 */ ?>
