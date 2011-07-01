@@ -1,14 +1,9 @@
 Before next release
 ===================
-- Improve wording (edit event, view event, log)
-- Translations (untranslated + fre-FR)
+- Translations (fre-FR + contributions ?)
+- Complete ezinfo.php, add extension.xml, update copyright to reflect contributors work
 
 
-Undecided
-=========
-- Linkedin status update support
-- Facebook support (Jérôme ?)
-- Others ?
 
 
 Future
@@ -18,3 +13,7 @@ Future
 - Add an option in the workflow to update the status when the object is first published only
 - On autostatus/log, ability edit the message before Retry/Send
 - Send an update without updating a content
+- Add a link to the status in autostatus/log
+- Linkedin status update support
+- Facebook support (Jérôme ?)
+- Others ?
