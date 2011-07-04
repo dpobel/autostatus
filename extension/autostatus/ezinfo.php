@@ -29,8 +29,14 @@ class autostatusInfo
     {
         return array( 'Name' => 'Auto Status',
                       'Version' => '0.1',
-                      'Copyright' => 'Copyright (C) 2009 Damien POBEL',
-                      'License' => 'GNU General Public License v2.0' );
+                      'Info_url' => 'http://projects.ez.no/autostatus',
+                      'Copyright' => 'Copyright (C) 2009-2011 Damien Pobel and contributors',
+                      'License' => 'GNU General Public License v2.0',
+                      '3rdparty_software' => array( 'name' => 'Zend Framework',
+                                                    'version' => '1.11.7',
+                                                    'copyright' => 'Zend Technologies USA, Inc.',
+                                                    'license' => 'Zend Framework license',
+                                                    'info_url' => 'http://framework.zend.com/' ) );
     }
 
 }
