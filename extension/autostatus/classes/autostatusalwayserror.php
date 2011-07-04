@@ -48,6 +48,10 @@ class autostatusAlwayserror extends autostatusSocialNetwork
         return false;
     }
 
+    public function getMaxMessageLength()
+    {
+        return null;
+    }
 
 }
 
