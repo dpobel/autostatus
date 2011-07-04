@@ -4,8 +4,8 @@
  * $HeadURL$
  *
  * SOFTWARE NAME: autostatus
- * SOFTWARE RELEASE: 0.1
- * COPYRIGHT NOTICE: Copyright (C) 2009 Damien POBEL
+ * SOFTWARE RELEASE: 0.2
+ * COPYRIGHT NOTICE: Copyright (C) 2009-2011 Damien POBEL
  * SOFTWARE LICENSE: GNU General Public License v2.0
  * NOTICE: >
  *   This program is free software; you can redistribute it and/or
@@ -28,7 +28,7 @@ class autostatusInfo
     static function info()
     {
         return array( 'Name' => 'Auto Status',
-                      'Version' => '0.1',
+                      'Version' => '0.2',
                       'Info_url' => 'http://projects.ez.no/autostatus',
                       'Copyright' => 'Copyright (C) 2009-2011 Damien Pobel and contributors',
                       'License' => 'GNU General Public License v2.0',

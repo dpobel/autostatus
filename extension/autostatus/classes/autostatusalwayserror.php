@@ -4,8 +4,8 @@
  * $HeadURL: http://svn.projects.ez.no/autostatus/trunk/extension/autostatus/classes/autostatustwitter.php $
  *
  * SOFTWARE NAME: autostatus
- * SOFTWARE RELEASE: 0.1
- * COPYRIGHT NOTICE: Copyright (C) 2009 Damien POBEL
+ * SOFTWARE RELEASE: 0.2
+ * COPYRIGHT NOTICE: Copyright (C) 2009-2011 Damien POBEL
  * SOFTWARE LICENSE: GNU General Public License v2.0
  * NOTICE: >
  *   This program is free software; you can redistribute it and/or
