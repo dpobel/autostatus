@@ -145,13 +145,13 @@ abstract class autostatusSocialNetwork
 
         if ( strpos( $message, '%url' ) !== false )
         {
-            require_once( 'access.php' );
-            $uriAccess  = isset( $GLOBALS['eZCurrentAccess'] ) && isset( $GLOBALS['eZCurrentAccess']['type'] ) && $GLOBALS['eZCurrentAccess']['type'] == EZ_ACCESS_TYPE_URI;
-            $hostAccess = isset( $GLOBALS['eZCurrentAccess'] ) && isset( $GLOBALS['eZCurrentAccess']['type'] ) && $GLOBALS['eZCurrentAccess']['type'] == EZ_ACCESS_TYPE_HTTP_HOST;
+            $currentSA = eZSiteAccess::current();
+            $uriAccess  = ( $currentSA['type'] == EZ_ACCESS_TYPE_URI );
+            $hostAccess = ( $currentSA['type'] == EZ_ACCESS_TYPE_HTTP_HOST );
 
             // Prior to any handling on the access, check whether the required access
             // is different from the current one. use $GLOBALS['eZCurrentAccess']['name']
-            $alterUrl = ( $event->attribute( 'siteaccess' ) == -1 or $event->attribute( 'siteaccess' ) == $GLOBALS['eZCurrentAccess']['name'] ) ? false : true ;
+            $alterUrl = ( $event->attribute( 'siteaccess' ) == -1 or $event->attribute( 'siteaccess' ) == $currentSA['name'] ) ? false : true ;
 
             if ( $alterUrl and $uriAccess )
             {
@@ -164,7 +164,6 @@ abstract class autostatusSocialNetwork
             }
 
             $node = $contentObject->attribute( 'main_node' );
-            $currentSA = eZSiteAccess::current();
             eZSiteAccess::load( array( 'name' => $event->attribute( 'siteaccess' ),
                                        'type' => eZSiteAccess::TYPE_STATIC,
                                        'uri_part' => array() ) );
