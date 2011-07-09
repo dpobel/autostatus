@@ -130,6 +130,123 @@ abstract class autostatusSocialNetwork
     }
 
     /**
+     * Substitute %title and %url to generate the message
+     *
+     * @param string $message
+     * @param eZContentObject $contentObject
+     * @param eZWorkflowEvent $event
+     * @return string
+     */
+    public function substituteFormats( $message, eZContentObject $contentObject, eZWorkflowEvent $event )
+    {
+        // It is important here to make sure the final message does not exceed the maximum message length.
+        $initialLength = strlen( $message );
+        $maxMessageLength = $this->getMaxMessageLength();
+
+        if ( strpos( $message, '%url' ) !== false )
+        {
+            require_once( 'access.php' );
+            $uriAccess  = isset( $GLOBALS['eZCurrentAccess'] ) && isset( $GLOBALS['eZCurrentAccess']['type'] ) && $GLOBALS['eZCurrentAccess']['type'] == EZ_ACCESS_TYPE_URI;
+            $hostAccess = isset( $GLOBALS['eZCurrentAccess'] ) && isset( $GLOBALS['eZCurrentAccess']['type'] ) && $GLOBALS['eZCurrentAccess']['type'] == EZ_ACCESS_TYPE_HTTP_HOST;
+
+            // Prior to any handling on the access, check whether the required access
+            // is different from the current one. use $GLOBALS['eZCurrentAccess']['name']
+            $alterUrl = ( $event->attribute( 'siteaccess' ) == -1 or $event->attribute( 'siteaccess' ) == $GLOBALS['eZCurrentAccess']['name'] ) ? false : true ;
+
+            if ( $alterUrl and $uriAccess )
+            {
+                // store access path
+                $previousAccessPath = eZSys::instance()->AccessPath;
+                // clear access path
+                eZSys::clearAccessPath();
+                // set new access path with siteaccess name
+                eZSys::addAccessPath( $event->attribute( 'siteaccess' ) );
+            }
+
+            $node = $contentObject->attribute( 'main_node' );
+            $currentSA = eZSiteAccess::current();
+            eZSiteAccess::load( array( 'name' => $event->attribute( 'siteaccess' ),
+                                       'type' => eZSiteAccess::TYPE_STATIC,
+                                       'uri_part' => array() ) );
+            $nodeURL = $node->attribute( 'url_alias' );
+            eZSiteAccess::load( $currentSA );
+            eZURI::transformURI( $nodeURL, false, 'full' );
+
+            if ( $alterUrl and $hostAccess )
+            {
+                //changeAccess( $previousAccess );
+                // retrieve domain name associated to the requested siteaccess :
+                $ini = eZINI::instance();
+                $matchMapItems = $ini->variableArray( 'SiteAccessSettings', 'HostMatchMapItems' );
+                foreach ( $matchMapItems as $matchMapItem )
+                {
+                    if ( $matchMapItem[1] == $event->attribute( 'siteaccess' ) )
+                    {
+                        $host = $matchMapItem[0];
+                        break;
+                    }
+                }
+                if ( isset( $host ) )
+                {
+                    $uriParts = explode( eZSys::hostname(), $nodeURL );
+                    $nodeURL = implode( $host, $uriParts );
+                }
+            }
+
+            // Last chance, if the URL still is not properly formed
+            // (can happen when run from a CLI script)
+            // @FIXME : This is clumsy, does not support SSLness, may be broken :)
+            if ( strpos( $nodeURL, 'http' ) === false )
+            {
+                $nodeURL = 'http://' . trim( eZINI::instance()->variable( 'SiteSettings', 'SiteURL' ), '/' ) . $nodeURL;
+            }
+
+            $message = str_replace( '%url', $nodeURL, $message );
+
+            if ( $alterUrl and $uriAccess )
+            {
+                // clear access path
+                eZSys::clearAccessPath();
+                // restore previous value
+                eZSys::addAccessPath( $previousAccessPath );
+            }
+
+            // Calculate the remaining message room :
+            // the URL will be shortened from any size to 20
+            // (see http://searchengineland.com/analysis-which-url-shortening-service-should-you-use-17204)
+            //
+            // @FIXME : add support for other URL-shrinking services, and take their respective URL-length into account here.
+            if ( $maxMessageLength !== null )
+                $maxMessageLength = $maxMessageLength - ( $initialLength - /* '%url' */ 4 + /* bit.ly URL size, automatic twitter transformation */ 20 );
+        }
+
+        if ( strpos( $message, '%title' ) !== false )
+        {
+            // @TODO : add length check. If shortage, shorten the name with '…'
+            $title = $contentObject->attribute( 'name' );
+            if ( $maxMessageLength !== null )
+            {
+                if ( $maxMessageLength > -6 )
+                {
+                    $maxMessageLength = $maxMessageLength + /* '%title' */ 6;
+
+                    // shorten, if necessary, the title to fit the message size :
+                    if ( $maxMessageLength - strlen( $title ) < 0 )
+                    {
+                        $title = substr( $title, 0, $maxMessageLength -1 ) . '…';
+                    }
+                }
+                else
+                    $title = '';
+            }
+            $message = str_replace( '%title', $title, $message );
+            $maxMessageLength = $maxMessageLength - strlen( $title );
+        }
+
+        return $message;
+    }
+
+    /**
      * Fetch the social network object associated with the identifier.
      *
      * @param string $identifier
