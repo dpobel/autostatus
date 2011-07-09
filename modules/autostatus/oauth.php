@@ -1,10 +1,4 @@
 <?php
-/*
- * $Id$
- * $HeadURL$
- *
- */
-
 autostatusSocialNetwork::fixIncludePath();
 
 $http = eZHTTPTool::instance();

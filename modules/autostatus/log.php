@@ -1,10 +1,4 @@
 <?php
-/*
- * $Id$
- * $HeadURL$
- *
- */
-
 $tpl = eZTemplate::factory();
 $ini = eZINI::instance( 'autostatus.ini' );
 

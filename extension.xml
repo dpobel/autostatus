@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <software>
-<!--
-    $HeadURL$
-    $Id$
--->
     <metadata>
         <name>Auto Status</name>
         <version>0.2</version>

@@ -1,7 +1,3 @@
-{*
-   $Id$
-   $HeadURL$
-*}
 {def $class = $event.class
      $attribute = $event.attribute
      $triggerAttribute = $event.trigger_attribute 

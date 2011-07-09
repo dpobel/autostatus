@@ -1,8 +1,5 @@
 <?php
 /**
- * $Id: autostatustype.php 6 2009-10-26 21:54:37Z dpobel $
- * $HeadURL: http://svn.projects.ez.no/autostatus/trunk/extension/autostatus/eventtypes/event/autostatus/autostatustype.php $
- *
  * SOFTWARE NAME: autostatus
  * SOFTWARE RELEASE: 0.2
  * COPYRIGHT NOTICE: Copyright (C) 2009-2011 Damien POBEL

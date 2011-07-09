@@ -1,8 +1,4 @@
 <?php /*
-#
-# $Id$
-# $HeadURL$
-#
 
 [TwitterSettings]
 ConsumerKey=xwONpUbHRNQaMC35jyNLw

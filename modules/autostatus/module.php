@@ -1,9 +1,4 @@
 <?php
-/*
- * $Id$
- * $HeadURL$
- *
- */
 
 $Module = array( 'name' => 'Autostatus' );
 

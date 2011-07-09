@@ -1,7 +1,3 @@
-{*
- * $Id$
- * $HeadURL$
- *}
 <div class="box-header"><div class="box-tc"><div class="box-ml"><div class="box-mr"><div class="box-tl"><div class="box-tr">
 <h4>{'Autostatus menu'|i18n( 'autostatus/log' )}</h4>
 </div></div></div></div></div></div>

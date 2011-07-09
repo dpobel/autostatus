@@ -1,7 +1,3 @@
-{*
-   $Id$
-   $HeadURL$
-*}
 {ezscript_require( 'ezjsc::jquery', 'ezjsc:jqueryio' )}
 {def $classes=fetch( 'class', 'list', hash( 'sort_by', array( 'name', true() ) ) )
      $attributes = array()

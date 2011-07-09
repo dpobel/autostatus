@@ -1,8 +1,5 @@
 <?php
 /**
- * $Id: autostatustwitter.php 8 2009-10-27 19:24:15Z dpobel $
- * $HeadURL: http://svn.projects.ez.no/autostatus/trunk/extension/autostatus/classes/autostatustwitter.php $
- *
  * SOFTWARE NAME: autostatus
  * SOFTWARE RELEASE: 0.2
  * COPYRIGHT NOTICE: Copyright (C) 2009-2011 Damien POBEL

@@ -1,7 +1,3 @@
-{*
- * $Id$
- * $HeadURL$
- *}
 {if $network.require_oauth}
 <p>
     {if and( is_object( $event.access_token ), $event.access_token_network_identifier|eq( $network.identifier ) )}

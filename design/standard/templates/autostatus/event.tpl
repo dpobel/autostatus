@@ -1,7 +1,3 @@
-{*
- * $Id$
- * $HeadURL$
- *}
 {def $author = $event.user
      $content = $event.object}
 <td>{if $event.event.login|ne( '' )}{$event.event.login|wash}@{/if}{$event.event.social_network.name|wash}</td>

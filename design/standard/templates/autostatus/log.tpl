@@ -1,7 +1,3 @@
-{*
- * $Id$
- * $HeadURL$
- *}
 {ezscript_require( 'ezjsc::jquery', 'ezjsc:jqueryio' )}
 <script type="text/javascript">
 {literal}

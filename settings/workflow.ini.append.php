@@ -1,8 +1,4 @@
 <?php /*
-#
-# $Id$
-# $HeadURL$
-#
 
 [EventSettings]
 ExtensionDirectories[]=autostatus

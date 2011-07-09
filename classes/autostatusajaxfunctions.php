@@ -1,8 +1,5 @@
 <?php
 /**
- * $Id$
- * $HeadURL$
- *
  * SOFTWARE NAME: autostatus
  * SOFTWARE RELEASE: 0.2
  * COPYRIGHT NOTICE: Copyright (C) 2009-2011 Damien POBEL

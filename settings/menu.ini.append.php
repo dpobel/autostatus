@@ -1,8 +1,4 @@
 <?php /*
-#
-# $Id$
-# $HeadURL$
-#
 
 [NavigationPart]
 Part[autostatus]=Auto status

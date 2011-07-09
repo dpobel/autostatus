@@ -1,7 +1,3 @@
---
--- $Id$
--- $HeadURL$
---
 
 CREATE TABLE statusupdateevent (
     id int(11) NOT NULL auto_increment,
