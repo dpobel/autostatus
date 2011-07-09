@@ -146,11 +146,11 @@ abstract class autostatusSocialNetwork
         if ( strpos( $message, '%url' ) !== false )
         {
             $currentSA = eZSiteAccess::current();
-            $uriAccess  = ( $currentSA['type'] == EZ_ACCESS_TYPE_URI );
-            $hostAccess = ( $currentSA['type'] == EZ_ACCESS_TYPE_HTTP_HOST );
+            $uriAccess  = ( $currentSA['type'] == eZSiteAccess::TYPE_URI );
+            $hostAccess = ( $currentSA['type'] == eZSiteAccess::TYPE_HTTP_HOST );
 
             // Prior to any handling on the access, check whether the required access
-            // is different from the current one. use $GLOBALS['eZCurrentAccess']['name']
+            // is different from the current one
             $alterUrl = ( $event->attribute( 'siteaccess' ) == -1 or $event->attribute( 'siteaccess' ) == $currentSA['name'] ) ? false : true ;
 
             if ( $alterUrl and $uriAccess )
