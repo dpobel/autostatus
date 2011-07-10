@@ -418,22 +418,21 @@ class autostatusType extends eZWorkflowEventType
         {
             $ini = eZINI::instance( 'autostatus.ini' );
             $shortener = new autostatusShortener( $ini->variable( 'URLShorteningSettings', 'Shortener' ) );
-            if ( $event->attribute( 'use_cronjob' ) && !isset( $parameters['in_cronjob'] ) )
-            {
-                $message = $socialNetwork->substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event, $shortener );
-                $parameters['in_cronjob'] = true;
-                $parameters['message'] = $message;
-                $process->setParameters( $parameters );
-                $process->store();
-                return eZWorkflowEventType::STATUS_DEFERRED_TO_CRON_REPEAT;
-            }
-            else if ( $event->attribute( 'use_cronjob' ) && isset( $parameters['in_cronjob'] ) )
+            if ( isset( $parameters['message'] ) )
             {
                 $message = $parameters['message'];
             }
             else
             {
                 $message = $socialNetwork->substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event, $shortener );
+            }
+            if ( $event->attribute( 'use_cronjob' ) && !isset( $parameters['in_cronjob'] ) )
+            {
+                $parameters['in_cronjob'] = true;
+                $parameters['message'] = $message;
+                $process->setParameters( $parameters );
+                $process->store();
+                return eZWorkflowEventType::STATUS_DEFERRED_TO_CRON_REPEAT;
             }
             eZDebug::writeDebug( $message, __METHOD__ );
 
