@@ -135,9 +135,10 @@ abstract class autostatusSocialNetwork
      * @param string $message
      * @param eZContentObject $contentObject
      * @param eZWorkflowEvent $event
+     * @param autostatusShortener $shortener
      * @return string
      */
-    public function substituteFormats( $message, eZContentObject $contentObject, eZWorkflowEvent $event )
+    public function substituteFormats( $message, eZContentObject $contentObject, eZWorkflowEvent $event, autostatusShortener $shortener = null )
     {
         // It is important here to make sure the final message does not exceed the maximum message length.
         $initialLength = strlen( $message );
@@ -198,6 +199,10 @@ abstract class autostatusSocialNetwork
             if ( strpos( $nodeURL, 'http' ) === false )
             {
                 $nodeURL = 'http://' . trim( eZINI::instance()->variable( 'SiteSettings', 'SiteURL' ), '/' ) . $nodeURL;
+            }
+            if ( $shortener instanceof autostatusShortener )
+            {
+                $nodeURL = $shortener->shorten( $nodeURL );
             }
 
             $message = str_replace( '%url', $nodeURL, $message );
