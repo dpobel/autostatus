@@ -138,7 +138,7 @@ abstract class autostatusSocialNetwork
      * @param autostatusShortener $shortener
      * @return string
      */
-    public function substituteFormats( $message, eZContentObject $contentObject, eZWorkflowEvent $event, autostatusShortener $shortener = null )
+    public function substituteFormats( $message, eZContentObject $contentObject, eZWorkflowEvent $event, autostatusShortener $shortener )
     {
         // It is important here to make sure the final message does not exceed the maximum message length.
         $initialLength = strlen( $message );
@@ -215,13 +215,12 @@ abstract class autostatusSocialNetwork
                 eZSys::addAccessPath( $previousAccessPath );
             }
 
-            // Calculate the remaining message room :
-            // the URL will be shortened from any size to 20
-            // (see http://searchengineland.com/analysis-which-url-shortening-service-should-you-use-17204)
-            //
-            // @FIXME : add support for other URL-shrinking services, and take their respective URL-length into account here.
+            // Calculate the remaining message room
             if ( $maxMessageLength !== null )
-                $maxMessageLength = $maxMessageLength - ( $initialLength - /* '%url' */ 4 + /* bit.ly URL size, automatic twitter transformation */ 20 );
+            {
+                $urlLength = $shortener->length() != 0 ? $shortener->length() : strlen( $nodeURL );
+                $maxMessageLength = $maxMessageLength - ( $initialLength - /* '%url' */ 4 + $urlLength );
+            }
         }
 
         if ( strpos( $message, '%title' ) !== false )
