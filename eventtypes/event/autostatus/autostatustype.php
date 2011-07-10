@@ -416,9 +416,11 @@ class autostatusType extends eZWorkflowEventType
              )
            )
         {
+            $ini = eZINI::instance( 'autostatus.ini' );
+            $shortener = new autostatusShortener( $ini->variable( 'URLShorteningSettings', 'Shortener' ) );
             if ( $event->attribute( 'use_cronjob' ) && !isset( $parameters['in_cronjob'] ) )
             {
-                $message = $socialNetwork->substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event );
+                $message = $socialNetwork->substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event, $shortener );
                 $parameters['in_cronjob'] = true;
                 $parameters['message'] = $message;
                 $process->setParameters( $parameters );
@@ -431,7 +433,7 @@ class autostatusType extends eZWorkflowEventType
             }
             else
             {
-                $message = $socialNetwork->substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event );
+                $message = $socialNetwork->substituteFormats( $dataMap[$attributeIdentifier]->attribute( 'content' ), $object, $event, $shortener );
             }
             eZDebug::writeDebug( $message, __METHOD__ );
 
@@ -440,7 +442,6 @@ class autostatusType extends eZWorkflowEventType
             $status = statusUpdateEvent::NORMAL;
             try
             {
-                $ini = eZINI::instance( 'autostatus.ini' );
                 if ( $ini->variable( 'AutoStatusSettings', 'Debug' ) === 'disabled' )
                 {
                     $result = $socialNetwork->update( $message, $options );

@@ -48,4 +48,11 @@ Limit=20
 # cronjob part.
 MaxAge=100
 
+[URLShorteningSettings]
+Shortener=isgd
+
+[URLShortener_isgd]
+Name=is.gd
+MaxLengh=20
+
 */ ?>
