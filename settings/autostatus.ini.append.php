@@ -55,4 +55,12 @@ Shortener=isgd
 Name=is.gd
 MaxLengh=20
 
+[URLShortener_googl]
+Name=Goo.gl
+# the ApiKey is not strictly required by Goo.gl but with it, you can get some
+# statistics on the shortened URLs
+# to get an API Key go to: https://code.google.com/apis/console
+ApiKey=
+MaxLengh=20
+
 */ ?>
