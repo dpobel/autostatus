@@ -115,7 +115,7 @@ class statusUpdateEvent extends eZPersistentObject
 
     function isError()
     {
-        return ( $this->Status !== self::NORMAL );
+        return ( $this->Status != self::NORMAL );
     }
 
     function statusText()
